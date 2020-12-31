@@ -16,6 +16,7 @@ import (
 // Endpoints wraps the "shiritori" service endpoints.
 type Endpoints struct {
 	Add    goa.Endpoint
+	Words  goa.Endpoint
 	Battle goa.Endpoint
 }
 
@@ -32,6 +33,7 @@ type BattleEndpointInput struct {
 func NewEndpoints(s Service) *Endpoints {
 	return &Endpoints{
 		Add:    NewAddEndpoint(s),
+		Words:  NewWordsEndpoint(s),
 		Battle: NewBattleEndpoint(s),
 	}
 }
@@ -39,6 +41,7 @@ func NewEndpoints(s Service) *Endpoints {
 // Use applies the given middleware to all the "shiritori" service endpoints.
 func (e *Endpoints) Use(m func(goa.Endpoint) goa.Endpoint) {
 	e.Add = m(e.Add)
+	e.Words = m(e.Words)
 	e.Battle = m(e.Battle)
 }
 
@@ -48,6 +51,20 @@ func NewAddEndpoint(s Service) goa.Endpoint {
 	return func(ctx context.Context, req interface{}) (interface{}, error) {
 		p := req.(*AddPayload)
 		return s.Add(ctx, p)
+	}
+}
+
+// NewWordsEndpoint returns an endpoint function that calls the method "words"
+// of service "shiritori".
+func NewWordsEndpoint(s Service) goa.Endpoint {
+	return func(ctx context.Context, req interface{}) (interface{}, error) {
+		p := req.(*WordsPayload)
+		res, err := s.Words(ctx, p)
+		if err != nil {
+			return nil, err
+		}
+		vres := NewViewedWordresult(res, "default")
+		return vres, nil
 	}
 }
 

@@ -16,6 +16,11 @@ func AddShiritoriPath(a int, b int) string {
 	return fmt.Sprintf("/add/%v/%v", a, b)
 }
 
+// WordsShiritoriPath returns the URL path to the shiritori service words HTTP endpoint.
+func WordsShiritoriPath(word string) string {
+	return fmt.Sprintf("/words/%v", word)
+}
+
 // BattleShiritoriPath returns the URL path to the shiritori service battle HTTP endpoint.
 func BattleShiritoriPath(battleID string) string {
 	return fmt.Sprintf("/streams/battles/%v", battleID)

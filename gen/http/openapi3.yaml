@@ -29,9 +29,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 7341786561015235771
+          example: 9013565148345874905
           format: int64
-        example: 93365310508068949
+        example: 1511986039251284080
       - name: b
         in: path
         description: Right operand
@@ -39,9 +39,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 8469957273113323736
+          example: 5380863506013512516
           format: int64
-        example: 7193464553517841110
+        example: 4551435967266391722
       responses:
         "200":
           description: OK response.
@@ -49,9 +49,9 @@ paths:
             application/json:
               schema:
                 type: integer
-                example: 2863033082621498607
+                example: 7341786561015235771
                 format: int64
-              example: 4613022898459555579
+              example: 6403480038048273120
   /streams/battles/{battleId}:
     get:
       tags:
@@ -64,8 +64,8 @@ paths:
         required: true
         schema:
           type: string
-          example: Ipsa in cum eos autem.
-        example: Quo illo non qui debitis dolor consequatur.
+          example: Nihil quasi praesentium et.
+        example: Et sed deleniti nihil.
       responses:
         "101":
           description: Switching Protocols response.
@@ -75,9 +75,34 @@ paths:
                 description: 'Response body may alternatively be #/components/schemas/BattleResponseBodyOther'
                 $ref: '#/components/schemas/Battleevent'
               example:
-                battleId: Est autem nesciunt quo.
-                name: Cupiditate qui dolores tenetur.
-                param: Dolor qui atque sed consequuntur.
+                battleId: Commodi tempora sint tempore.
+                name: Reiciendis labore unde sed recusandae nam.
+                param: Sit ut ea eum odit laboriosam.
+  /words/{word}:
+    get:
+      tags:
+      - shiritori
+      summary: words shiritori
+      operationId: shiritori#words
+      parameters:
+      - name: word
+        in: path
+        required: true
+        schema:
+          type: string
+          example: Dolor sed vel modi nemo unde.
+        example: Explicabo cupiditate necessitatibus fugit.
+      responses:
+        "200":
+          description: OK response.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Wordresult'
+              example:
+                exists: true
+                hash: Qui dolores tenetur.
+                word: Est autem nesciunt quo.
 components:
   schemas:
     BattleResponseBodyOther:
@@ -85,18 +110,18 @@ components:
       properties:
         battleId:
           type: string
-          example: Dicta ipsum aut nesciunt quaerat distinctio.
+          example: Qui eius.
         name:
           type: string
-          example: Quia adipisci debitis sapiente quis.
+          example: Quae ullam.
         param:
           type: string
-          example: Error est omnis odit molestias.
+          example: Et id aut.
       description: BattleResponseBody result type (other view)
       example:
-        battleId: Occaecati perspiciatis illo commodi necessitatibus.
-        name: Et voluptas fuga sint voluptatem velit.
-        param: Aliquid quod deserunt possimus velit.
+        battleId: Explicabo laboriosam dolorem.
+        name: Consectetur laboriosam commodi alias sit.
+        param: Laborum rem deleniti.
     BattleStreamingBody:
       $ref: '#/components/schemas/BattleStreamingBody'
     Battleevent:
@@ -104,14 +129,34 @@ components:
       properties:
         battleId:
           type: string
-          example: Eos ducimus ipsum quidem.
+          example: Et vero at harum et et quaerat.
         name:
           type: string
-          example: Et architecto excepturi veniam aut commodi tempora.
+          example: Reprehenderit quaerat ratione quas aut.
         param:
           type: string
-          example: Tempore facere reiciendis labore unde.
+          example: Accusantium id deserunt.
       example:
-        battleId: Recusandae nam exercitationem sit ut ea eum.
-        name: Laboriosam unde iusto accusamus at vel eius.
-        param: Sint aut error dolore tempora blanditiis.
+        battleId: Suscipit neque mollitia dolorem asperiores reprehenderit.
+        name: Et fugit optio illo repellendus non nihil.
+        param: Sit doloribus aut autem.
+    Wordresult:
+      type: object
+      properties:
+        exists:
+          type: boolean
+          example: false
+        hash:
+          type: string
+          example: Quia quo.
+        word:
+          type: string
+          example: Sit exercitationem tempora accusantium ipsa in cum.
+      example:
+        exists: false
+        hash: Fuga recusandae.
+        word: Non qui debitis.
+      required:
+      - word
+      - hash
+      - exists

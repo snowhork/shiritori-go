@@ -5,20 +5,30 @@ import (
 	"io"
 	"log"
 	"shiritori/gen/shiritori"
+	"shiritori/pkg/wordchecker"
+	"shiritori/pkg/wordsigner"
 
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
-// shiritori service example implementation.
-// The example methods log the requests and return zero values.
 type shiritorisrvc struct {
-	logger *log.Logger
+	logger      *log.Logger
+	wordChecker WordChecker
+	wordSigner  WordSigner
+}
+
+type WordChecker interface {
+	Check(ctx context.Context, word string) (bool, error)
+}
+
+type WordSigner interface {
+	Sign(word string, exists bool) string
 }
 
 // NewShiritori returns the shiritori service implementation.
 func NewShiritori(logger *log.Logger) shiritori.Service {
-	return &shiritorisrvc{logger}
+	return &shiritorisrvc{logger: logger, wordChecker: wordchecker.NewWordChecker(), wordSigner: wordsigner.NewWordSigner("123456789")}
 }
 
 // Add implements add.

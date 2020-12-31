@@ -42,6 +42,19 @@ func BuildAddPayload(shiritoriAddA string, shiritoriAddB string) (*shiritori.Add
 	return v, nil
 }
 
+// BuildWordsPayload builds the payload for the shiritori words endpoint from
+// CLI flags.
+func BuildWordsPayload(shiritoriWordsWord string) (*shiritori.WordsPayload, error) {
+	var word string
+	{
+		word = shiritoriWordsWord
+	}
+	v := &shiritori.WordsPayload{}
+	v.Word = word
+
+	return v, nil
+}
+
 // BuildBattlePayload builds the payload for the shiritori battle endpoint from
 // CLI flags.
 func BuildBattlePayload(shiritoriBattleBattleID string) (*shiritori.BattlePayload, error) {

@@ -23,13 +23,13 @@ import (
 //    command (subcommand1|subcommand2|...)
 //
 func UsageCommands() string {
-	return `shiritori (add|battle)
+	return `shiritori (add|words|battle)
 `
 }
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` shiritori add --a 2050665199575487643 --b 8957984818515167990` + "\n" +
+	return os.Args[0] + ` shiritori add --a 6789298082735250775 --b 3453783859326640228` + "\n" +
 		""
 }
 
@@ -51,11 +51,15 @@ func ParseEndpoint(
 		shiritoriAddAFlag = shiritoriAddFlags.String("a", "REQUIRED", "Left operand")
 		shiritoriAddBFlag = shiritoriAddFlags.String("b", "REQUIRED", "Right operand")
 
+		shiritoriWordsFlags    = flag.NewFlagSet("words", flag.ExitOnError)
+		shiritoriWordsWordFlag = shiritoriWordsFlags.String("word", "REQUIRED", "")
+
 		shiritoriBattleFlags        = flag.NewFlagSet("battle", flag.ExitOnError)
 		shiritoriBattleBattleIDFlag = shiritoriBattleFlags.String("battle-id", "REQUIRED", "")
 	)
 	shiritoriFlags.Usage = shiritoriUsage
 	shiritoriAddFlags.Usage = shiritoriAddUsage
+	shiritoriWordsFlags.Usage = shiritoriWordsUsage
 	shiritoriBattleFlags.Usage = shiritoriBattleUsage
 
 	if err := flag.CommandLine.Parse(os.Args[1:]); err != nil {
@@ -95,6 +99,9 @@ func ParseEndpoint(
 			case "add":
 				epf = shiritoriAddFlags
 
+			case "words":
+				epf = shiritoriWordsFlags
+
 			case "battle":
 				epf = shiritoriBattleFlags
 
@@ -126,6 +133,9 @@ func ParseEndpoint(
 			case "add":
 				endpoint = c.Add()
 				data, err = shiritoric.BuildAddPayload(*shiritoriAddAFlag, *shiritoriAddBFlag)
+			case "words":
+				endpoint = c.Words()
+				data, err = shiritoric.BuildWordsPayload(*shiritoriWordsWordFlag)
 			case "battle":
 				endpoint = c.Battle()
 				data, err = shiritoric.BuildBattlePayload(*shiritoriBattleBattleIDFlag)
@@ -148,6 +158,7 @@ Usage:
 
 COMMAND:
     add: Add implements add.
+    words: Words implements words.
     battle: Battle implements battle.
 
 Additional help:
@@ -162,7 +173,18 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    `+os.Args[0]+` shiritori add --a 2050665199575487643 --b 8957984818515167990
+    `+os.Args[0]+` shiritori add --a 6789298082735250775 --b 3453783859326640228
+`, os.Args[0])
+}
+
+func shiritoriWordsUsage() {
+	fmt.Fprintf(os.Stderr, `%s [flags] shiritori words -word STRING
+
+Words implements words.
+    -word STRING: 
+
+Example:
+    `+os.Args[0]+` shiritori words --word "Beatae mollitia officia."
 `, os.Args[0])
 }
 
@@ -173,6 +195,6 @@ Battle implements battle.
     -battle-id STRING: 
 
 Example:
-    `+os.Args[0]+` shiritori battle --battle-id "Minus eos quo ipsa."
+    `+os.Args[0]+` shiritori battle --battle-id "Illo molestiae et odio et aut animi."
 `, os.Args[0])
 }

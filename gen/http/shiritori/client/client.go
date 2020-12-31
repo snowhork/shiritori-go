@@ -20,6 +20,9 @@ type Client struct {
 	// Add Doer is the HTTP client used to make requests to the add endpoint.
 	AddDoer goahttp.Doer
 
+	// Words Doer is the HTTP client used to make requests to the words endpoint.
+	WordsDoer goahttp.Doer
+
 	// Battle Doer is the HTTP client used to make requests to the battle endpoint.
 	BattleDoer goahttp.Doer
 
@@ -51,6 +54,7 @@ func NewClient(
 	}
 	return &Client{
 		AddDoer:             doer,
+		WordsDoer:           doer,
 		BattleDoer:          doer,
 		RestoreResponseBody: restoreBody,
 		scheme:              scheme,
@@ -76,6 +80,25 @@ func (c *Client) Add() goa.Endpoint {
 		resp, err := c.AddDoer.Do(req)
 		if err != nil {
 			return nil, goahttp.ErrRequestError("shiritori", "add", err)
+		}
+		return decodeResponse(resp)
+	}
+}
+
+// Words returns an endpoint that makes HTTP requests to the shiritori service
+// words server.
+func (c *Client) Words() goa.Endpoint {
+	var (
+		decodeResponse = DecodeWordsResponse(c.decoder, c.RestoreResponseBody)
+	)
+	return func(ctx context.Context, v interface{}) (interface{}, error) {
+		req, err := c.BuildWordsRequest(ctx, v)
+		if err != nil {
+			return nil, err
+		}
+		resp, err := c.WordsDoer.Do(req)
+		if err != nil {
+			return nil, goahttp.ErrRequestError("shiritori", "words", err)
 		}
 		return decodeResponse(resp)
 	}

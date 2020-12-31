@@ -69,6 +69,24 @@ paths:
             $ref: '#/definitions/ShiritoriBattleResponseBody'
       schemes:
       - ws
+  /words/{word}:
+    get:
+      tags:
+      - shiritori
+      summary: words shiritori
+      operationId: shiritori#words
+      parameters:
+      - name: word
+        in: path
+        required: true
+        type: string
+      responses:
+        "200":
+          description: OK response.
+          schema:
+            $ref: '#/definitions/ShiritoriWordsResponseBody'
+      schemes:
+      - http
 definitions:
   ShiritoriBattleResponseBody:
     title: 'Mediatype identifier: battleevent; view=default'
@@ -76,11 +94,33 @@ definitions:
     properties:
       battleId:
         type: string
-        example: Illo molestiae et odio et aut animi.
+        example: Error est omnis odit molestias.
       name:
         type: string
-        example: Ipsam vero vitae perferendis eos.
+        example: Occaecati perspiciatis illo commodi necessitatibus.
     description: BattleResponseBody result type (default view)
     example:
-      battleId: Ipsa suscipit sapiente est.
-      name: Repudiandae voluptate inventore voluptatem dolor eos.
+      battleId: Et voluptas fuga sint voluptatem velit.
+      name: Aliquid quod deserunt possimus velit.
+  ShiritoriWordsResponseBody:
+    title: 'Mediatype identifier: wordresult; view=default'
+    type: object
+    properties:
+      exists:
+        type: boolean
+        example: true
+      hash:
+        type: string
+        example: Porro sint aut error dolore.
+      word:
+        type: string
+        example: Iusto accusamus at.
+    description: WordsResponseBody result type (default view)
+    example:
+      exists: true
+      hash: Quia adipisci debitis sapiente quis.
+      word: Blanditiis et dicta ipsum aut nesciunt quaerat.
+    required:
+    - word
+    - hash
+    - exists

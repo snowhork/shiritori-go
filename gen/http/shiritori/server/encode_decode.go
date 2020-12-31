@@ -10,6 +10,7 @@ package server
 import (
 	"context"
 	"net/http"
+	shiritoriviews "shiritori/gen/shiritori/views"
 	"strconv"
 
 	goahttp "goa.design/goa/v3/http"
@@ -59,6 +60,34 @@ func DecodeAddRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Dec
 			return nil, err
 		}
 		payload := NewAddPayload(a, b)
+
+		return payload, nil
+	}
+}
+
+// EncodeWordsResponse returns an encoder for responses returned by the
+// shiritori words endpoint.
+func EncodeWordsResponse(encoder func(context.Context, http.ResponseWriter) goahttp.Encoder) func(context.Context, http.ResponseWriter, interface{}) error {
+	return func(ctx context.Context, w http.ResponseWriter, v interface{}) error {
+		res := v.(*shiritoriviews.Wordresult)
+		enc := encoder(ctx, w)
+		body := NewWordsResponseBody(res.Projected)
+		w.WriteHeader(http.StatusOK)
+		return enc.Encode(body)
+	}
+}
+
+// DecodeWordsRequest returns a decoder for requests sent to the shiritori
+// words endpoint.
+func DecodeWordsRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.Decoder) func(*http.Request) (interface{}, error) {
+	return func(r *http.Request) (interface{}, error) {
+		var (
+			word string
+
+			params = mux.Vars(r)
+		)
+		word = params["word"]
+		payload := NewWordsPayload(word)
 
 		return payload, nil
 	}

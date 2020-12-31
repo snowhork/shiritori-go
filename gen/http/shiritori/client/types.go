@@ -16,6 +16,14 @@ import (
 // HTTP request body.
 type BattleStreamingBody BattlemessageStreamingBody
 
+// WordsResponseBody is the type of the "shiritori" service "words" endpoint
+// HTTP response body.
+type WordsResponseBody struct {
+	Word   *string `form:"word,omitempty" json:"word,omitempty" xml:"word,omitempty"`
+	Exists *bool   `form:"exists,omitempty" json:"exists,omitempty" xml:"exists,omitempty"`
+	Hash   *string `form:"hash,omitempty" json:"hash,omitempty" xml:"hash,omitempty"`
+}
+
 // BattleResponseBody is the type of the "shiritori" service "battle" endpoint
 // HTTP response body.
 type BattleResponseBody struct {
@@ -40,6 +48,18 @@ func NewBattleStreamingBody(p *shiritori.Battlemessage) *BattleStreamingBody {
 		Data: p.Data,
 	}
 	return body
+}
+
+// NewWordsWordresultOK builds a "shiritori" service "words" endpoint result
+// from a HTTP "OK" response.
+func NewWordsWordresultOK(body *WordsResponseBody) *shiritoriviews.WordresultView {
+	v := &shiritoriviews.WordresultView{
+		Word:   body.Word,
+		Exists: body.Exists,
+		Hash:   body.Hash,
+	}
+
+	return v
 }
 
 // NewBattleeventViewOK builds a "shiritori" service "battle" endpoint result

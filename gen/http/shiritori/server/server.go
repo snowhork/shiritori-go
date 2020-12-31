@@ -21,6 +21,7 @@ import (
 type Server struct {
 	Mounts []*MountPoint
 	Add    http.Handler
+	Words  http.Handler
 	Battle http.Handler
 }
 
@@ -63,10 +64,12 @@ func New(
 	return &Server{
 		Mounts: []*MountPoint{
 			{"Add", "GET", "/add/{a}/{b}"},
+			{"Words", "GET", "/words/{word}"},
 			{"Battle", "GET", "/streams/battles/{battleId}"},
 			{"./frontend/index.html", "GET", "/"},
 		},
 		Add:    NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
+		Words:  NewWordsHandler(e.Words, mux, decoder, encoder, errhandler, formatter),
 		Battle: NewBattleHandler(e.Battle, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.BattleFn),
 	}
 }
@@ -77,12 +80,14 @@ func (s *Server) Service() string { return "shiritori" }
 // Use wraps the server handlers with the given middleware.
 func (s *Server) Use(m func(http.Handler) http.Handler) {
 	s.Add = m(s.Add)
+	s.Words = m(s.Words)
 	s.Battle = m(s.Battle)
 }
 
 // Mount configures the mux to serve the shiritori endpoints.
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
+	MountWordsHandler(mux, h.Words)
 	MountBattleHandler(mux, h.Battle)
 	MountFrontendIndexHTML(mux, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "./frontend/index.html")
@@ -119,6 +124,57 @@ func NewAddHandler(
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
 		ctx = context.WithValue(ctx, goa.MethodKey, "add")
+		ctx = context.WithValue(ctx, goa.ServiceKey, "shiritori")
+		payload, err := decodeRequest(r)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		res, err := endpoint(ctx, payload)
+		if err != nil {
+			if err := encodeError(ctx, w, err); err != nil {
+				errhandler(ctx, w, err)
+			}
+			return
+		}
+		if err := encodeResponse(ctx, w, res); err != nil {
+			errhandler(ctx, w, err)
+		}
+	})
+}
+
+// MountWordsHandler configures the mux to serve the "shiritori" service
+// "words" endpoint.
+func MountWordsHandler(mux goahttp.Muxer, h http.Handler) {
+	f, ok := h.(http.HandlerFunc)
+	if !ok {
+		f = func(w http.ResponseWriter, r *http.Request) {
+			h.ServeHTTP(w, r)
+		}
+	}
+	mux.Handle("GET", "/words/{word}", f)
+}
+
+// NewWordsHandler creates a HTTP handler which loads the HTTP request and
+// calls the "shiritori" service "words" endpoint.
+func NewWordsHandler(
+	endpoint goa.Endpoint,
+	mux goahttp.Muxer,
+	decoder func(*http.Request) goahttp.Decoder,
+	encoder func(context.Context, http.ResponseWriter) goahttp.Encoder,
+	errhandler func(context.Context, http.ResponseWriter, error),
+	formatter func(err error) goahttp.Statuser,
+) http.Handler {
+	var (
+		decodeRequest  = DecodeWordsRequest(mux, decoder)
+		encodeResponse = EncodeWordsResponse(encoder)
+		encodeError    = goahttp.ErrorEncoder(encoder, formatter)
+	)
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), goahttp.AcceptTypeKey, r.Header.Get("Accept"))
+		ctx = context.WithValue(ctx, goa.MethodKey, "words")
 		ctx = context.WithValue(ctx, goa.ServiceKey, "shiritori")
 		payload, err := decodeRequest(r)
 		if err != nil {

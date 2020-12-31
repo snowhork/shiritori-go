@@ -11,12 +11,27 @@ import (
 	goa "goa.design/goa/v3/pkg"
 )
 
+// Wordresult is the viewed result type that is projected based on a view.
+type Wordresult struct {
+	// Type to project
+	Projected *WordresultView
+	// View to render
+	View string
+}
+
 // Battleevent is the viewed result type that is projected based on a view.
 type Battleevent struct {
 	// Type to project
 	Projected *BattleeventView
 	// View to render
 	View string
+}
+
+// WordresultView is a type that runs validations on a projected type.
+type WordresultView struct {
+	Word   *string
+	Exists *bool
+	Hash   *string
 }
 
 // BattleeventView is a type that runs validations on a projected type.
@@ -27,6 +42,15 @@ type BattleeventView struct {
 }
 
 var (
+	// WordresultMap is a map of attribute names in result type Wordresult indexed
+	// by view name.
+	WordresultMap = map[string][]string{
+		"default": []string{
+			"word",
+			"exists",
+			"hash",
+		},
+	}
 	// BattleeventMap is a map of attribute names in result type Battleevent
 	// indexed by view name.
 	BattleeventMap = map[string][]string{
@@ -42,6 +66,18 @@ var (
 	}
 )
 
+// ValidateWordresult runs the validations defined on the viewed result type
+// Wordresult.
+func ValidateWordresult(result *Wordresult) (err error) {
+	switch result.View {
+	case "default", "":
+		err = ValidateWordresultView(result.Projected)
+	default:
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
+	}
+	return
+}
+
 // ValidateBattleevent runs the validations defined on the viewed result type
 // Battleevent.
 func ValidateBattleevent(result *Battleevent) (err error) {
@@ -52,6 +88,21 @@ func ValidateBattleevent(result *Battleevent) (err error) {
 		err = ValidateBattleeventViewOther(result.Projected)
 	default:
 		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default", "other"})
+	}
+	return
+}
+
+// ValidateWordresultView runs the validations defined on WordresultView using
+// the "default" view.
+func ValidateWordresultView(result *WordresultView) (err error) {
+	if result.Word == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("word", "result"))
+	}
+	if result.Hash == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("hash", "result"))
+	}
+	if result.Exists == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("exists", "result"))
 	}
 	return
 }

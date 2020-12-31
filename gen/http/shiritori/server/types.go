@@ -18,6 +18,14 @@ import (
 // HTTP request body.
 type BattleStreamingBody BattlemessageStreamingBody
 
+// WordsResponseBody is the type of the "shiritori" service "words" endpoint
+// HTTP response body.
+type WordsResponseBody struct {
+	Word   string `form:"word" json:"word" xml:"word"`
+	Exists bool   `form:"exists" json:"exists" xml:"exists"`
+	Hash   string `form:"hash" json:"hash" xml:"hash"`
+}
+
 // BattleResponseBody is the type of the "shiritori" service "battle" endpoint
 // HTTP response body.
 type BattleResponseBody struct {
@@ -38,6 +46,17 @@ type BattlemessageStreamingBody struct {
 	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
 	Msg  *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
 	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+}
+
+// NewWordsResponseBody builds the HTTP response body from the result of the
+// "words" endpoint of the "shiritori" service.
+func NewWordsResponseBody(res *shiritoriviews.WordresultView) *WordsResponseBody {
+	body := &WordsResponseBody{
+		Word:   *res.Word,
+		Exists: *res.Exists,
+		Hash:   *res.Hash,
+	}
+	return body
 }
 
 // NewBattleResponseBody builds the HTTP response body from the result of the
@@ -66,6 +85,14 @@ func NewAddPayload(a int, b int) *shiritori.AddPayload {
 	v := &shiritori.AddPayload{}
 	v.A = a
 	v.B = b
+
+	return v
+}
+
+// NewWordsPayload builds a shiritori service words endpoint payload.
+func NewWordsPayload(word string) *shiritori.WordsPayload {
+	v := &shiritori.WordsPayload{}
+	v.Word = word
 
 	return v
 }

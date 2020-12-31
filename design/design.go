@@ -39,6 +39,20 @@ var _ = Service("shiritori", func() {
 		})
 	})
 
+	Method("words", func() {
+		Payload(func() {
+			Attribute("word", String)
+			Required("word")
+		})
+
+		Result(WordResult)
+
+		HTTP(func() {
+			GET("/words/{word}")
+			Response(StatusOK)
+		})
+	})
+
 	Method("battle", func() {
 		Payload(func() {
 			Attribute("battleId", String)
@@ -85,5 +99,14 @@ var BattleEvent = ResultType("BattleEvent", func() {
 		Attribute("name")
 		Attribute("param")
 	})
+})
 
+var WordResult = ResultType("WordResult", func() {
+	Attributes(func() {
+		Attribute("word", String)
+		Attribute("exists", Boolean)
+		Attribute("hash", String)
+
+		Required("word", "hash", "exists")
+	})
 })
