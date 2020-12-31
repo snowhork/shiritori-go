@@ -43,6 +43,10 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 				}
 			}
 
+			if data.Msg != nil && *data.Msg == "close" {
+				return nil
+			}
+
 			if err := stream.Send(&shiritori.Battleevent{BattleID: data.Msg}); err != nil {
 				return errors.Wrap(err, "Message Send Error")
 			}

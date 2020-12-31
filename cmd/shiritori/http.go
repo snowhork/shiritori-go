@@ -51,12 +51,11 @@ func handleHTTPServer(ctx context.Context, u *url.URL, shiritoriEndpoints *shiri
 	// responses.
 	var (
 		shiritoriServer *shiritorisvr.Server
-		configurer = newWebScocketCofigurer(logger)
 	)
 	{
 		eh := errorHandler(logger)
 		upgrader := &websocket.Upgrader{}
-		shiritoriServer = shiritorisvr.New(shiritoriEndpoints, mux, dec, enc, eh, nil, upgrader, configurer)
+		shiritoriServer = shiritorisvr.New(shiritoriEndpoints, mux, dec, enc, eh, nil, upgrader, nil)
 		if debug {
 			servers := goahttp.Servers{
 				shiritoriServer,
