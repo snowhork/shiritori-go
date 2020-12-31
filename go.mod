@@ -3,7 +3,11 @@ module shiritori
 go 1.14
 
 require (
+	github.com/containerd/containerd v1.4.3 // indirect
+	github.com/containerd/fifo v0.0.0-20201026212402-0724c46b320c // indirect
+	github.com/docker/docker v20.10.1+incompatible
 	github.com/gorilla/websocket v1.4.2
+	github.com/moby/term v0.0.0-20201216013528-df9cb8a40635 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/stretchr/testify v1.6.1
 	goa.design/goa/v3 v3.2.6

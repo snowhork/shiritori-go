@@ -55,7 +55,7 @@ type MessagePayloadResponseBody struct {
 // "battle" endpoint of the "shiritori" service.
 func NewBattleStreamingBody(p *shiritori.Battlestreamingpayload) *BattleStreamingBody {
 	body := &BattleStreamingBody{
-		Type: &p.Type,
+		Type: p.Type,
 	}
 	if p.MessagePayload != nil {
 		body.MessagePayload = marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(p.MessagePayload)

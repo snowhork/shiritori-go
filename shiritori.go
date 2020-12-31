@@ -27,7 +27,7 @@ type WordSigner interface {
 
 type RepositoryFactory struct {
 	BattleEvent interface {
-		Insert(event *entity.BattleEvent) error
+		Insert(event entity.BattleEvent) error
 		GetNewer(battleId string, timestamp int64) ([]entity.BattleEvent, error)
 	}
 }

@@ -1,8 +1,8 @@
 package entity
 
 type BattleEvent struct {
-	Timestamp int64
 	Type      BattleEventType
+	Timestamp int64
 	BattleID  string
 
 	MessagePayload *MessagePayload

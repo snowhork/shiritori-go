@@ -12,7 +12,6 @@ import (
 )
 
 func Test_Battle(t *testing.T) {
-
 	cases := []struct {
 		name     string
 		payload  *shiritori.Battlestreamingpayload
