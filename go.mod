@@ -8,7 +8,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	goa.design/goa/v3 v3.2.6
 	golang.org/x/mod v0.4.0 // indirect
-	golang.org/x/net v0.0.0-20201224014010-6772e930b67b // indirect
+	golang.org/x/net v0.0.0-20201224014010-6772e930b67b
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/sys v0.0.0-20201223074533-0d417f636930 // indirect
 	golang.org/x/tools v0.0.0-20201230224404-63754364767c // indirect

@@ -207,17 +207,45 @@ func DecodeBattleResponse(decoder func(*http.Response) goahttp.Decoder, restoreB
 			if err != nil {
 				return nil, goahttp.ErrDecodingError("shiritori", "battle", err)
 			}
-			p := NewBattleeventViewOK(&body)
-			view := resp.Header.Get("goa-view")
-			vres := &shiritoriviews.Battleevent{Projected: p, View: view}
-			if err = shiritoriviews.ValidateBattleevent(vres); err != nil {
+			p := NewBattlestreamingresultViewOK(&body)
+			view := "default"
+			vres := &shiritoriviews.Battlestreamingresult{Projected: p, View: view}
+			if err = shiritoriviews.ValidateBattlestreamingresult(vres); err != nil {
 				return nil, goahttp.ErrValidationError("shiritori", "battle", err)
 			}
-			res := shiritori.NewBattleevent(vres)
+			res := shiritori.NewBattlestreamingresult(vres)
 			return res, nil
 		default:
 			body, _ := ioutil.ReadAll(resp.Body)
 			return nil, goahttp.ErrInvalidResponse("shiritori", "battle", resp.StatusCode, string(body))
 		}
 	}
+}
+
+// unmarshalMessagePayloadResponseBodyToShiritoriviewsMessagePayloadView builds
+// a value of type *shiritoriviews.MessagePayloadView from a value of type
+// *MessagePayloadResponseBody.
+func unmarshalMessagePayloadResponseBodyToShiritoriviewsMessagePayloadView(v *MessagePayloadResponseBody) *shiritoriviews.MessagePayloadView {
+	if v == nil {
+		return nil
+	}
+	res := &shiritoriviews.MessagePayloadView{
+		Message: v.Message,
+	}
+
+	return res
+}
+
+// marshalShiritoriMessagePayloadToMessagePayloadStreamingBody builds a value
+// of type *MessagePayloadStreamingBody from a value of type
+// *shiritori.MessagePayload.
+func marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(v *shiritori.MessagePayload) *MessagePayloadStreamingBody {
+	if v == nil {
+		return nil
+	}
+	res := &MessagePayloadStreamingBody{
+		Message: v.Message,
+	}
+
+	return res
 }

@@ -29,9 +29,9 @@ paths:
         schema:
           type: integer
           description: Left operand
-          example: 9013565148345874905
+          example: 93365310508068949
           format: int64
-        example: 1511986039251284080
+        example: 8469957273113323736
       - name: b
         in: path
         description: Right operand
@@ -39,9 +39,9 @@ paths:
         schema:
           type: integer
           description: Right operand
-          example: 5380863506013512516
+          example: 7193464553517841110
           format: int64
-        example: 4551435967266391722
+        example: 4613022898459555579
       responses:
         "200":
           description: OK response.
@@ -49,9 +49,9 @@ paths:
             application/json:
               schema:
                 type: integer
-                example: 7341786561015235771
+                example: 7859591070285971188
                 format: int64
-              example: 6403480038048273120
+              example: 8449683601270220976
   /streams/battles/{battleId}:
     get:
       tags:
@@ -64,20 +64,20 @@ paths:
         required: true
         schema:
           type: string
-          example: Nihil quasi praesentium et.
-        example: Et sed deleniti nihil.
+          example: Non qui debitis.
+        example: Consequatur fuga recusandae eum.
       responses:
         "101":
           description: Switching Protocols response.
           content:
             application/json:
               schema:
-                description: 'Response body may alternatively be #/components/schemas/BattleResponseBodyOther'
-                $ref: '#/components/schemas/Battleevent'
+                $ref: '#/components/schemas/Battlestreamingresult'
               example:
-                battleId: Commodi tempora sint tempore.
-                name: Reiciendis labore unde sed recusandae nam.
-                param: Sit ut ea eum odit laboriosam.
+                message_payload:
+                  message: Quam cumque voluptatem.
+                timestamp: 8230322793592707381
+                type: Dolor qui atque sed consequuntur.
   /words/{word}:
     get:
       tags:
@@ -90,8 +90,8 @@ paths:
         required: true
         schema:
           type: string
-          example: Dolor sed vel modi nemo unde.
-        example: Explicabo cupiditate necessitatibus fugit.
+          example: In cum eos.
+        example: Quia quo.
       responses:
         "200":
           description: OK response.
@@ -101,45 +101,42 @@ paths:
                 $ref: '#/components/schemas/Wordresult'
               example:
                 exists: true
-                hash: Qui dolores tenetur.
-                word: Est autem nesciunt quo.
+                hash: Beatae mollitia officia.
+                word: Atque aut vero.
 components:
   schemas:
-    BattleResponseBodyOther:
-      type: object
-      properties:
-        battleId:
-          type: string
-          example: Qui eius.
-        name:
-          type: string
-          example: Quae ullam.
-        param:
-          type: string
-          example: Et id aut.
-      description: BattleResponseBody result type (other view)
-      example:
-        battleId: Explicabo laboriosam dolorem.
-        name: Consectetur laboriosam commodi alias sit.
-        param: Laborum rem deleniti.
     BattleStreamingBody:
       $ref: '#/components/schemas/BattleStreamingBody'
-    Battleevent:
+    Battlestreamingresult:
       type: object
       properties:
-        battleId:
+        message_payload:
+          $ref: '#/components/schemas/MessagePayload'
+        timestamp:
+          type: integer
+          example: 5784412983495985943
+          format: int64
+        type:
           type: string
-          example: Et vero at harum et et quaerat.
-        name:
-          type: string
-          example: Reprehenderit quaerat ratione quas aut.
-        param:
-          type: string
-          example: Accusantium id deserunt.
+          example: Quis in error est.
       example:
-        battleId: Suscipit neque mollitia dolorem asperiores reprehenderit.
-        name: Et fugit optio illo repellendus non nihil.
-        param: Sit doloribus aut autem.
+        message_payload:
+          message: Quam cumque voluptatem.
+        timestamp: 7341786561015235771
+        type: Aliquid quod deserunt possimus velit.
+      required:
+      - type
+      - timestamp
+    MessagePayload:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Molestias adipisci occaecati perspiciatis illo commodi necessitatibus.
+      example:
+        message: Et voluptas fuga sint voluptatem velit.
+      required:
+      - message
     Wordresult:
       type: object
       properties:
@@ -148,14 +145,14 @@ components:
           example: false
         hash:
           type: string
-          example: Quia quo.
+          example: Dolore tempora blanditiis et dicta ipsum aut.
         word:
           type: string
-          example: Sit exercitationem tempora accusantium ipsa in cum.
+          example: At vel eius porro sint.
       example:
-        exists: false
-        hash: Fuga recusandae.
-        word: Non qui debitis.
+        exists: true
+        hash: Adipisci debitis.
+        word: Quaerat distinctio.
       required:
       - word
       - hash

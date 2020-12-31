@@ -128,8 +128,6 @@ func (c *Client) Battle() goa.Endpoint {
 			conn = c.configurer.BattleFn(conn, cancel)
 		}
 		stream := &BattleClientStream{conn: conn}
-		view := resp.Header.Get("goa-view")
-		stream.SetView(view)
 		return stream, nil
 	}
 }

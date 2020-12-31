@@ -10,11 +10,13 @@ package client
 import (
 	shiritori "shiritori/gen/shiritori"
 	shiritoriviews "shiritori/gen/shiritori/views"
+
+	goa "goa.design/goa/v3/pkg"
 )
 
 // BattleStreamingBody is the type of the "shiritori" service "battle" endpoint
 // HTTP request body.
-type BattleStreamingBody BattlemessageStreamingBody
+type BattleStreamingBody BattlestreamingpayloadStreamingBody
 
 // WordsResponseBody is the type of the "shiritori" service "words" endpoint
 // HTTP response body.
@@ -27,25 +29,36 @@ type WordsResponseBody struct {
 // BattleResponseBody is the type of the "shiritori" service "battle" endpoint
 // HTTP response body.
 type BattleResponseBody struct {
-	BattleID *string `form:"battleId,omitempty" json:"battleId,omitempty" xml:"battleId,omitempty"`
-	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Param    *string `form:"param,omitempty" json:"param,omitempty" xml:"param,omitempty"`
+	Type           *string                     `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	Timestamp      *int64                      `form:"timestamp,omitempty" json:"timestamp,omitempty" xml:"timestamp,omitempty"`
+	MessagePayload *MessagePayloadResponseBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
 }
 
-// BattlemessageStreamingBody is used to define fields on request body types.
-type BattlemessageStreamingBody struct {
-	Type string  `form:"type" json:"type" xml:"type"`
-	Msg  *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
-	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+// BattlestreamingpayloadStreamingBody is used to define fields on request body
+// types.
+type BattlestreamingpayloadStreamingBody struct {
+	Type           string                       `form:"type" json:"type" xml:"type"`
+	MessagePayload *MessagePayloadStreamingBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+}
+
+// MessagePayloadStreamingBody is used to define fields on request body types.
+type MessagePayloadStreamingBody struct {
+	Message string `form:"message" json:"message" xml:"message"`
+}
+
+// MessagePayloadResponseBody is used to define fields on response body types.
+type MessagePayloadResponseBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
 // NewBattleStreamingBody builds the HTTP request body from the payload of the
 // "battle" endpoint of the "shiritori" service.
-func NewBattleStreamingBody(p *shiritori.Battlemessage) *BattleStreamingBody {
+func NewBattleStreamingBody(p *shiritori.Battlestreamingpayload) *BattleStreamingBody {
 	body := &BattleStreamingBody{
 		Type: &p.Type,
-		Msg:  p.Msg,
-		Data: p.Data,
+	}
+	if p.MessagePayload != nil {
+		body.MessagePayload = marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(p.MessagePayload)
 	}
 	return body
 }
@@ -62,14 +75,34 @@ func NewWordsWordresultOK(body *WordsResponseBody) *shiritoriviews.WordresultVie
 	return v
 }
 
-// NewBattleeventViewOK builds a "shiritori" service "battle" endpoint result
-// from a HTTP "OK" response.
-func NewBattleeventViewOK(body *BattleResponseBody) *shiritoriviews.BattleeventView {
-	v := &shiritoriviews.BattleeventView{
-		BattleID: body.BattleID,
-		Name:     body.Name,
-		Param:    body.Param,
+// NewBattlestreamingresultViewOK builds a "shiritori" service "battle"
+// endpoint result from a HTTP "OK" response.
+func NewBattlestreamingresultViewOK(body *BattleResponseBody) *shiritoriviews.BattlestreamingresultView {
+	v := &shiritoriviews.BattlestreamingresultView{
+		Type:      body.Type,
+		Timestamp: body.Timestamp,
+	}
+	if body.MessagePayload != nil {
+		v.MessagePayload = unmarshalMessagePayloadResponseBodyToShiritoriviewsMessagePayloadView(body.MessagePayload)
 	}
 
 	return v
+}
+
+// ValidateBattlestreamingpayloadStreamingBody runs the validations defined on
+// BattlestreamingpayloadStreamingBody
+func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStreamingBody) (err error) {
+	if !(body.Type == "message" || body.Type == "close") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []interface{}{"message", "close"}))
+	}
+	return
+}
+
+// ValidateMessagePayloadResponseBody runs the validations defined on
+// MessagePayloadResponseBody
+func ValidateMessagePayloadResponseBody(body *MessagePayloadResponseBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	return
 }

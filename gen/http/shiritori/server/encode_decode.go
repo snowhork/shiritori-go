@@ -10,6 +10,7 @@ package server
 import (
 	"context"
 	"net/http"
+	shiritori "shiritori/gen/shiritori"
 	shiritoriviews "shiritori/gen/shiritori/views"
 	"strconv"
 
@@ -107,4 +108,32 @@ func DecodeBattleRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 
 		return payload, nil
 	}
+}
+
+// marshalShiritoriviewsMessagePayloadViewToMessagePayloadResponseBody builds a
+// value of type *MessagePayloadResponseBody from a value of type
+// *shiritoriviews.MessagePayloadView.
+func marshalShiritoriviewsMessagePayloadViewToMessagePayloadResponseBody(v *shiritoriviews.MessagePayloadView) *MessagePayloadResponseBody {
+	if v == nil {
+		return nil
+	}
+	res := &MessagePayloadResponseBody{
+		Message: *v.Message,
+	}
+
+	return res
+}
+
+// marshalMessagePayloadStreamingBodyToShiritoriMessagePayload builds a value
+// of type *shiritori.MessagePayload from a value of type
+// *MessagePayloadStreamingBody.
+func marshalMessagePayloadStreamingBodyToShiritoriMessagePayload(v *MessagePayloadStreamingBody) *shiritori.MessagePayload {
+	if v == nil {
+		return nil
+	}
+	res := &shiritori.MessagePayload{
+		Message: *v.Message,
+	}
+
+	return res
 }

@@ -88,20 +88,39 @@ paths:
       schemes:
       - http
 definitions:
-  ShiritoriBattleResponseBody:
-    title: 'Mediatype identifier: battleevent; view=default'
+  MessagePayloadResponseBody:
+    title: MessagePayloadResponseBody
     type: object
     properties:
-      battleId:
+      message:
         type: string
-        example: Error est omnis odit molestias.
-      name:
+        example: Commodi tempora sint tempore.
+    example:
+      message: Reiciendis labore unde sed recusandae nam.
+    required:
+    - message
+  ShiritoriBattleResponseBody:
+    title: 'Mediatype identifier: battlestreamingresult; view=default'
+    type: object
+    properties:
+      message_payload:
+        $ref: '#/definitions/MessagePayloadResponseBody'
+      timestamp:
+        type: integer
+        example: 1731503209999601179
+        format: int64
+      type:
         type: string
-        example: Occaecati perspiciatis illo commodi necessitatibus.
+        example: Ut et architecto excepturi.
     description: BattleResponseBody result type (default view)
     example:
-      battleId: Et voluptas fuga sint voluptatem velit.
-      name: Aliquid quod deserunt possimus velit.
+      message_payload:
+        message: Quam cumque voluptatem.
+      timestamp: 5795481755208264950
+      type: Sit ut ea eum odit laboriosam.
+    required:
+    - type
+    - timestamp
   ShiritoriWordsResponseBody:
     title: 'Mediatype identifier: wordresult; view=default'
     type: object
@@ -111,15 +130,15 @@ definitions:
         example: true
       hash:
         type: string
-        example: Porro sint aut error dolore.
+        example: Eos hic.
       word:
         type: string
-        example: Iusto accusamus at.
+        example: Aut animi id ipsam vero.
     description: WordsResponseBody result type (default view)
     example:
       exists: true
-      hash: Quia adipisci debitis sapiente quis.
-      word: Blanditiis et dicta ipsum aut nesciunt quaerat.
+      hash: Dolor eos aut qui eos ducimus ipsum.
+      word: Suscipit sapiente est temporibus repudiandae voluptate.
     required:
     - word
     - hash

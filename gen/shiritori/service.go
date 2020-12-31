@@ -19,9 +19,6 @@ type Service interface {
 	// Words implements words.
 	Words(context.Context, *WordsPayload) (res *Wordresult, err error)
 	// Battle implements battle.
-	// The "view" return value must have one of the following views
-	//	- "default"
-	//	- "other"
 	Battle(context.Context, *BattlePayload, BattleServerStream) (err error)
 }
 
@@ -38,23 +35,21 @@ var MethodNames = [3]string{"add", "words", "battle"}
 // BattleServerStream is the interface a "battle" endpoint server stream must
 // satisfy.
 type BattleServerStream interface {
-	// Send streams instances of "Battleevent".
-	Send(*Battleevent) error
-	// Recv reads instances of "Battlemessage" from the stream.
-	Recv() (*Battlemessage, error)
+	// Send streams instances of "Battlestreamingresult".
+	Send(*Battlestreamingresult) error
+	// Recv reads instances of "Battlestreamingpayload" from the stream.
+	Recv() (*Battlestreamingpayload, error)
 	// Close closes the stream.
 	Close() error
-	// SetView sets the view used to render the result before streaming.
-	SetView(view string)
 }
 
 // BattleClientStream is the interface a "battle" endpoint client stream must
 // satisfy.
 type BattleClientStream interface {
-	// Send streams instances of "Battlemessage".
-	Send(*Battlemessage) error
-	// Recv reads instances of "Battleevent" from the stream.
-	Recv() (*Battleevent, error)
+	// Send streams instances of "Battlestreamingpayload".
+	Send(*Battlestreamingpayload) error
+	// Recv reads instances of "Battlestreamingresult" from the stream.
+	Recv() (*Battlestreamingresult, error)
 	// Close closes the stream.
 	Close() error
 }
@@ -84,19 +79,23 @@ type BattlePayload struct {
 	BattleID string
 }
 
-// Battlemessage is the streaming payload type of the shiritori service battle
-// method.
-type Battlemessage struct {
-	Type string
-	Msg  *string
-	Data *string
+// Battlestreamingpayload is the streaming payload type of the shiritori
+// service battle method.
+type Battlestreamingpayload struct {
+	Type           string
+	MessagePayload *MessagePayload
 }
 
-// Battleevent is the result type of the shiritori service battle method.
-type Battleevent struct {
-	BattleID *string
-	Name     *string
-	Param    *string
+// Battlestreamingresult is the result type of the shiritori service battle
+// method.
+type Battlestreamingresult struct {
+	Type           string
+	Timestamp      int64
+	MessagePayload *MessagePayload
+}
+
+type MessagePayload struct {
+	Message string
 }
 
 // NewWordresult initializes result type Wordresult from viewed result type
@@ -112,32 +111,18 @@ func NewViewedWordresult(res *Wordresult, view string) *shiritoriviews.Wordresul
 	return &shiritoriviews.Wordresult{Projected: p, View: "default"}
 }
 
-// NewBattleevent initializes result type Battleevent from viewed result type
-// Battleevent.
-func NewBattleevent(vres *shiritoriviews.Battleevent) *Battleevent {
-	var res *Battleevent
-	switch vres.View {
-	case "default", "":
-		res = newBattleevent(vres.Projected)
-	case "other":
-		res = newBattleeventOther(vres.Projected)
-	}
-	return res
+// NewBattlestreamingresult initializes result type Battlestreamingresult from
+// viewed result type Battlestreamingresult.
+func NewBattlestreamingresult(vres *shiritoriviews.Battlestreamingresult) *Battlestreamingresult {
+	return newBattlestreamingresult(vres.Projected)
 }
 
-// NewViewedBattleevent initializes viewed result type Battleevent from result
-// type Battleevent using the given view.
-func NewViewedBattleevent(res *Battleevent, view string) *shiritoriviews.Battleevent {
-	var vres *shiritoriviews.Battleevent
-	switch view {
-	case "default", "":
-		p := newBattleeventView(res)
-		vres = &shiritoriviews.Battleevent{Projected: p, View: "default"}
-	case "other":
-		p := newBattleeventViewOther(res)
-		vres = &shiritoriviews.Battleevent{Projected: p, View: "other"}
-	}
-	return vres
+// NewViewedBattlestreamingresult initializes viewed result type
+// Battlestreamingresult from result type Battlestreamingresult using the given
+// view.
+func NewViewedBattlestreamingresult(res *Battlestreamingresult, view string) *shiritoriviews.Battlestreamingresult {
+	p := newBattlestreamingresultView(res)
+	return &shiritoriviews.Battlestreamingresult{Projected: p, View: "default"}
 }
 
 // newWordresult converts projected type Wordresult to service type Wordresult.
@@ -166,44 +151,57 @@ func newWordresultView(res *Wordresult) *shiritoriviews.WordresultView {
 	return vres
 }
 
-// newBattleevent converts projected type Battleevent to service type
-// Battleevent.
-func newBattleevent(vres *shiritoriviews.BattleeventView) *Battleevent {
-	res := &Battleevent{
-		BattleID: vres.BattleID,
-		Name:     vres.Name,
+// newBattlestreamingresult converts projected type Battlestreamingresult to
+// service type Battlestreamingresult.
+func newBattlestreamingresult(vres *shiritoriviews.BattlestreamingresultView) *Battlestreamingresult {
+	res := &Battlestreamingresult{}
+	if vres.Type != nil {
+		res.Type = *vres.Type
+	}
+	if vres.Timestamp != nil {
+		res.Timestamp = *vres.Timestamp
+	}
+	if vres.MessagePayload != nil {
+		res.MessagePayload = transformShiritoriviewsMessagePayloadViewToMessagePayload(vres.MessagePayload)
 	}
 	return res
 }
 
-// newBattleeventOther converts projected type Battleevent to service type
-// Battleevent.
-func newBattleeventOther(vres *shiritoriviews.BattleeventView) *Battleevent {
-	res := &Battleevent{
-		BattleID: vres.BattleID,
-		Name:     vres.Name,
-		Param:    vres.Param,
+// newBattlestreamingresultView projects result type Battlestreamingresult to
+// projected type BattlestreamingresultView using the "default" view.
+func newBattlestreamingresultView(res *Battlestreamingresult) *shiritoriviews.BattlestreamingresultView {
+	vres := &shiritoriviews.BattlestreamingresultView{
+		Type:      &res.Type,
+		Timestamp: &res.Timestamp,
 	}
+	if res.MessagePayload != nil {
+		vres.MessagePayload = transformMessagePayloadToShiritoriviewsMessagePayloadView(res.MessagePayload)
+	}
+	return vres
+}
+
+// transformShiritoriviewsMessagePayloadViewToMessagePayload builds a value of
+// type *MessagePayload from a value of type *shiritoriviews.MessagePayloadView.
+func transformShiritoriviewsMessagePayloadViewToMessagePayload(v *shiritoriviews.MessagePayloadView) *MessagePayload {
+	if v == nil {
+		return nil
+	}
+	res := &MessagePayload{
+		Message: *v.Message,
+	}
+
 	return res
 }
 
-// newBattleeventView projects result type Battleevent to projected type
-// BattleeventView using the "default" view.
-func newBattleeventView(res *Battleevent) *shiritoriviews.BattleeventView {
-	vres := &shiritoriviews.BattleeventView{
-		BattleID: res.BattleID,
-		Name:     res.Name,
+// transformMessagePayloadToShiritoriviewsMessagePayloadView builds a value of
+// type *shiritoriviews.MessagePayloadView from a value of type *MessagePayload.
+func transformMessagePayloadToShiritoriviewsMessagePayloadView(v *MessagePayload) *shiritoriviews.MessagePayloadView {
+	if v == nil {
+		return nil
 	}
-	return vres
-}
+	res := &shiritoriviews.MessagePayloadView{
+		Message: &v.Message,
+	}
 
-// newBattleeventViewOther projects result type Battleevent to projected type
-// BattleeventView using the "other" view.
-func newBattleeventViewOther(res *Battleevent) *shiritoriviews.BattleeventView {
-	vres := &shiritoriviews.BattleeventView{
-		BattleID: res.BattleID,
-		Name:     res.Name,
-		Param:    res.Param,
-	}
-	return vres
+	return res
 }

@@ -29,7 +29,7 @@ func UsageCommands() string {
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` shiritori add --a 6789298082735250775 --b 3453783859326640228` + "\n" +
+	return os.Args[0] + ` shiritori add --a 3731139465252073695 --b 6423146713516749068` + "\n" +
 		""
 }
 
@@ -173,7 +173,7 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    `+os.Args[0]+` shiritori add --a 6789298082735250775 --b 3453783859326640228
+    `+os.Args[0]+` shiritori add --a 3731139465252073695 --b 6423146713516749068
 `, os.Args[0])
 }
 
@@ -184,7 +184,7 @@ Words implements words.
     -word STRING: 
 
 Example:
-    `+os.Args[0]+` shiritori words --word "Beatae mollitia officia."
+    `+os.Args[0]+` shiritori words --word "Dolores eius ut nobis minus eos."
 `, os.Args[0])
 }
 
@@ -195,6 +195,6 @@ Battle implements battle.
     -battle-id STRING: 
 
 Example:
-    `+os.Args[0]+` shiritori battle --battle-id "Illo molestiae et odio et aut animi."
+    `+os.Args[0]+` shiritori battle --battle-id "Ut ab."
 `, os.Args[0])
 }

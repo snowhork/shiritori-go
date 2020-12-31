@@ -19,10 +19,11 @@ type Wordresult struct {
 	View string
 }
 
-// Battleevent is the viewed result type that is projected based on a view.
-type Battleevent struct {
+// Battlestreamingresult is the viewed result type that is projected based on a
+// view.
+type Battlestreamingresult struct {
 	// Type to project
-	Projected *BattleeventView
+	Projected *BattlestreamingresultView
 	// View to render
 	View string
 }
@@ -34,11 +35,17 @@ type WordresultView struct {
 	Hash   *string
 }
 
-// BattleeventView is a type that runs validations on a projected type.
-type BattleeventView struct {
-	BattleID *string
-	Name     *string
-	Param    *string
+// BattlestreamingresultView is a type that runs validations on a projected
+// type.
+type BattlestreamingresultView struct {
+	Type           *string
+	Timestamp      *int64
+	MessagePayload *MessagePayloadView
+}
+
+// MessagePayloadView is a type that runs validations on a projected type.
+type MessagePayloadView struct {
+	Message *string
 }
 
 var (
@@ -51,17 +58,13 @@ var (
 			"hash",
 		},
 	}
-	// BattleeventMap is a map of attribute names in result type Battleevent
-	// indexed by view name.
-	BattleeventMap = map[string][]string{
+	// BattlestreamingresultMap is a map of attribute names in result type
+	// Battlestreamingresult indexed by view name.
+	BattlestreamingresultMap = map[string][]string{
 		"default": []string{
-			"battleId",
-			"name",
-		},
-		"other": []string{
-			"battleId",
-			"name",
-			"param",
+			"type",
+			"timestamp",
+			"message_payload",
 		},
 	}
 )
@@ -78,16 +81,14 @@ func ValidateWordresult(result *Wordresult) (err error) {
 	return
 }
 
-// ValidateBattleevent runs the validations defined on the viewed result type
-// Battleevent.
-func ValidateBattleevent(result *Battleevent) (err error) {
+// ValidateBattlestreamingresult runs the validations defined on the viewed
+// result type Battlestreamingresult.
+func ValidateBattlestreamingresult(result *Battlestreamingresult) (err error) {
 	switch result.View {
 	case "default", "":
-		err = ValidateBattleeventView(result.Projected)
-	case "other":
-		err = ValidateBattleeventViewOther(result.Projected)
+		err = ValidateBattlestreamingresultView(result.Projected)
 	default:
-		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default", "other"})
+		err = goa.InvalidEnumValueError("view", result.View, []interface{}{"default"})
 	}
 	return
 }
@@ -107,16 +108,28 @@ func ValidateWordresultView(result *WordresultView) (err error) {
 	return
 }
 
-// ValidateBattleeventView runs the validations defined on BattleeventView
-// using the "default" view.
-func ValidateBattleeventView(result *BattleeventView) (err error) {
-
+// ValidateBattlestreamingresultView runs the validations defined on
+// BattlestreamingresultView using the "default" view.
+func ValidateBattlestreamingresultView(result *BattlestreamingresultView) (err error) {
+	if result.Type == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("type", "result"))
+	}
+	if result.Timestamp == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("timestamp", "result"))
+	}
+	if result.MessagePayload != nil {
+		if err2 := ValidateMessagePayloadView(result.MessagePayload); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
 	return
 }
 
-// ValidateBattleeventViewOther runs the validations defined on BattleeventView
-// using the "other" view.
-func ValidateBattleeventViewOther(result *BattleeventView) (err error) {
-
+// ValidateMessagePayloadView runs the validations defined on
+// MessagePayloadView.
+func ValidateMessagePayloadView(result *MessagePayloadView) (err error) {
+	if result.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "result"))
+	}
 	return
 }

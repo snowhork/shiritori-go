@@ -16,7 +16,7 @@ import (
 
 // BattleStreamingBody is the type of the "shiritori" service "battle" endpoint
 // HTTP request body.
-type BattleStreamingBody BattlemessageStreamingBody
+type BattleStreamingBody BattlestreamingpayloadStreamingBody
 
 // WordsResponseBody is the type of the "shiritori" service "words" endpoint
 // HTTP response body.
@@ -29,23 +29,26 @@ type WordsResponseBody struct {
 // BattleResponseBody is the type of the "shiritori" service "battle" endpoint
 // HTTP response body.
 type BattleResponseBody struct {
-	BattleID *string `form:"battleId,omitempty" json:"battleId,omitempty" xml:"battleId,omitempty"`
-	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
+	Type           string                      `form:"type" json:"type" xml:"type"`
+	Timestamp      int64                       `form:"timestamp" json:"timestamp" xml:"timestamp"`
+	MessagePayload *MessagePayloadResponseBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
 }
 
-// BattleResponseBodyOther is the type of the "shiritori" service "battle"
-// endpoint HTTP response body.
-type BattleResponseBodyOther struct {
-	BattleID *string `form:"battleId,omitempty" json:"battleId,omitempty" xml:"battleId,omitempty"`
-	Name     *string `form:"name,omitempty" json:"name,omitempty" xml:"name,omitempty"`
-	Param    *string `form:"param,omitempty" json:"param,omitempty" xml:"param,omitempty"`
+// MessagePayloadResponseBody is used to define fields on response body types.
+type MessagePayloadResponseBody struct {
+	Message string `form:"message" json:"message" xml:"message"`
 }
 
-// BattlemessageStreamingBody is used to define fields on request body types.
-type BattlemessageStreamingBody struct {
-	Type *string `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	Msg  *string `form:"msg,omitempty" json:"msg,omitempty" xml:"msg,omitempty"`
-	Data *string `form:"data,omitempty" json:"data,omitempty" xml:"data,omitempty"`
+// BattlestreamingpayloadStreamingBody is used to define fields on request body
+// types.
+type BattlestreamingpayloadStreamingBody struct {
+	Type           *string                      `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	MessagePayload *MessagePayloadStreamingBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+}
+
+// MessagePayloadStreamingBody is used to define fields on request body types.
+type MessagePayloadStreamingBody struct {
+	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
 }
 
 // NewWordsResponseBody builds the HTTP response body from the result of the
@@ -61,21 +64,13 @@ func NewWordsResponseBody(res *shiritoriviews.WordresultView) *WordsResponseBody
 
 // NewBattleResponseBody builds the HTTP response body from the result of the
 // "battle" endpoint of the "shiritori" service.
-func NewBattleResponseBody(res *shiritoriviews.BattleeventView) *BattleResponseBody {
+func NewBattleResponseBody(res *shiritoriviews.BattlestreamingresultView) *BattleResponseBody {
 	body := &BattleResponseBody{
-		BattleID: res.BattleID,
-		Name:     res.Name,
+		Type:      *res.Type,
+		Timestamp: *res.Timestamp,
 	}
-	return body
-}
-
-// NewBattleResponseBodyOther builds the HTTP response body from the result of
-// the "battle" endpoint of the "shiritori" service.
-func NewBattleResponseBodyOther(res *shiritoriviews.BattleeventView) *BattleResponseBodyOther {
-	body := &BattleResponseBodyOther{
-		BattleID: res.BattleID,
-		Name:     res.Name,
-		Param:    res.Param,
+	if res.MessagePayload != nil {
+		body.MessagePayload = marshalShiritoriviewsMessagePayloadViewToMessagePayloadResponseBody(res.MessagePayload)
 	}
 	return body
 }
@@ -106,13 +101,13 @@ func NewBattlePayload(battleID string) *shiritori.BattlePayload {
 }
 
 // NewBattleStreamingBody builds a shiritori service battle endpoint payload.
-func NewBattleStreamingBody(body *BattleStreamingBody) *shiritori.Battlemessage {
-	v := &shiritori.Battlemessage{
-		Msg:  body.Msg,
-		Data: body.Data,
-	}
+func NewBattleStreamingBody(body *BattleStreamingBody) *shiritori.Battlestreamingpayload {
+	v := &shiritori.Battlestreamingpayload{}
 	if body.Type != nil {
 		v.Type = *body.Type
+	}
+	if body.MessagePayload != nil {
+		v.MessagePayload = marshalMessagePayloadStreamingBodyToShiritoriMessagePayload(body.MessagePayload)
 	}
 
 	return v
@@ -124,14 +119,43 @@ func ValidateBattleStreamingBody(body *BattleStreamingBody) (err error) {
 	if body.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
 	}
+	if body.Type != nil {
+		if !(*body.Type == "message" || *body.Type == "close") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close"}))
+		}
+	}
+	if body.MessagePayload != nil {
+		if err2 := ValidateMessagePayloadStreamingBody(body.MessagePayload); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
 	return
 }
 
-// ValidateBattlemessageStreamingBody runs the validations defined on
-// BattlemessageStreamingBody
-func ValidateBattlemessageStreamingBody(body *BattlemessageStreamingBody) (err error) {
+// ValidateBattlestreamingpayloadStreamingBody runs the validations defined on
+// BattlestreamingpayloadStreamingBody
+func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStreamingBody) (err error) {
 	if body.Type == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
+	}
+	if body.Type != nil {
+		if !(*body.Type == "message" || *body.Type == "close") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close"}))
+		}
+	}
+	if body.MessagePayload != nil {
+		if err2 := ValidateMessagePayloadStreamingBody(body.MessagePayload); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	return
+}
+
+// ValidateMessagePayloadStreamingBody runs the validations defined on
+// MessagePayloadStreamingBody
+func ValidateMessagePayloadStreamingBody(body *MessagePayloadStreamingBody) (err error) {
+	if body.Message == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
 	}
 	return
 }

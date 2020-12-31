@@ -59,8 +59,8 @@ var _ = Service("shiritori", func() {
 			Required("battleId")
 		})
 
-		StreamingPayload(BattleMessage)
-		StreamingResult(BattleEvent)
+		StreamingPayload(BattleStreamingPayload)
+		StreamingResult(BattleStreamingResult)
 
 		HTTP(func() {
 			GET("/streams/battles/{battleId}")
@@ -72,33 +72,30 @@ var _ = Service("shiritori", func() {
 	})
 })
 
-var BattleMessage = ResultType("BattleMessage", func() {
+var BattleStreamingPayload = ResultType("BattleStreamingPayload", func() {
 	Attributes(func() {
-		Attribute("type", String)
-		Attribute("msg", String)
-		Attribute("data", String)
+		Attribute("type", String, func() {
+			Enum("message", "close")
+		})
 
+		Attribute("message_payload", MessagePayload)
 		Required("type")
 	})
 })
 
-var BattleEvent = ResultType("BattleEvent", func() {
+var BattleStreamingResult = ResultType("BattleStreamingResult", func() {
 	Attributes(func() {
-		Attribute("battleId", String)
-		Attribute("name", String)
-		Attribute("param", String)
-	})
+		Attribute("type", String)
+		Attribute("timestamp", Int64)
 
-	View("default", func() {
-		Attribute("battleId")
-		Attribute("name")
+		Attribute("message_payload", MessagePayload)
+		Required("type", "timestamp")
 	})
+})
 
-	View("other", func() {
-		Attribute("battleId")
-		Attribute("name")
-		Attribute("param")
-	})
+var MessagePayload = Type("MessagePayload", func() {
+	Attribute("message", String)
+	Required("message")
 })
 
 var WordResult = ResultType("WordResult", func() {

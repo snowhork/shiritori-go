@@ -24,9 +24,10 @@ window.onload = function () {
             return false;
         }
         conn.send(JSON.stringify({
-            type: "hoge",
-            msg: msg.value,
-            data: "",
+            type: "message",
+            message_payload: {
+                "message": msg.value,
+            },
         }));
         msg.value = "";
         return false;

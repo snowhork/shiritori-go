@@ -26,9 +26,6 @@ type ConnConfigurer struct {
 type BattleClientStream struct {
 	// conn is the underlying websocket connection.
 	conn *websocket.Conn
-	// view is the view to render shiritori.Battlemessage result type before
-	// sending to the websocket connection.
-	view string
 }
 
 // NewConnConfigurer initializes the websocket connection configurer function
@@ -39,11 +36,11 @@ func NewConnConfigurer(fn goahttp.ConnConfigureFunc) *ConnConfigurer {
 	}
 }
 
-// Recv reads instances of "shiritori.Battleevent" from the "battle" endpoint
-// websocket connection.
-func (s *BattleClientStream) Recv() (*shiritori.Battleevent, error) {
+// Recv reads instances of "shiritori.Battlestreamingresult" from the "battle"
+// endpoint websocket connection.
+func (s *BattleClientStream) Recv() (*shiritori.Battlestreamingresult, error) {
 	var (
-		rv   *shiritori.Battleevent
+		rv   *shiritori.Battlestreamingresult
 		body BattleResponseBody
 		err  error
 	)
@@ -54,17 +51,17 @@ func (s *BattleClientStream) Recv() (*shiritori.Battleevent, error) {
 	if err != nil {
 		return rv, err
 	}
-	res := NewBattleeventViewOK(&body)
-	vres := &shiritoriviews.Battleevent{res, s.view}
-	if err := shiritoriviews.ValidateBattleevent(vres); err != nil {
+	res := NewBattlestreamingresultViewOK(&body)
+	vres := &shiritoriviews.Battlestreamingresult{res, "default"}
+	if err := shiritoriviews.ValidateBattlestreamingresult(vres); err != nil {
 		return rv, goahttp.ErrValidationError("shiritori", "battle", err)
 	}
-	return shiritori.NewBattleevent(vres), nil
+	return shiritori.NewBattlestreamingresult(vres), nil
 }
 
-// Send streams instances of "shiritori.Battlemessage" to the "battle" endpoint
-// websocket connection.
-func (s *BattleClientStream) Send(v *shiritori.Battlemessage) error {
+// Send streams instances of "shiritori.Battlestreamingpayload" to the "battle"
+// endpoint websocket connection.
+func (s *BattleClientStream) Send(v *shiritori.Battlestreamingpayload) error {
 	body := NewBattleStreamingBody(v)
 	return s.conn.WriteJSON(body)
 }
@@ -77,10 +74,4 @@ func (s *BattleClientStream) Close() error {
 		return err
 	}
 	return s.conn.Close()
-}
-
-// SetView sets the view to render the shiritori.Battlemessage type before
-// sending to the "battle" endpoint websocket connection.
-func (s *BattleClientStream) SetView(view string) {
-	s.view = view
 }
