@@ -64,7 +64,7 @@ func New(
 		Mounts: []*MountPoint{
 			{"Add", "GET", "/add/{a}/{b}"},
 			{"Battle", "GET", "/streams/battles/{battleId}"},
-			{"./client/chat/home.html", "GET", "/"},
+			{"./frontend/index.html", "GET", "/"},
 		},
 		Add:    NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
 		Battle: NewBattleHandler(e.Battle, mux, decoder, encoder, errhandler, formatter, upgrader, configurer.BattleFn),
@@ -84,8 +84,8 @@ func (s *Server) Use(m func(http.Handler) http.Handler) {
 func Mount(mux goahttp.Muxer, h *Server) {
 	MountAddHandler(mux, h.Add)
 	MountBattleHandler(mux, h.Battle)
-	MountClientChatHomeHTML(mux, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./client/chat/home.html")
+	MountFrontendIndexHTML(mux, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, "./frontend/index.html")
 	}))
 }
 
@@ -204,7 +204,7 @@ func NewBattleHandler(
 	})
 }
 
-// MountClientChatHomeHTML configures the mux to serve GET request made to "/".
-func MountClientChatHomeHTML(mux goahttp.Muxer, h http.Handler) {
+// MountFrontendIndexHTML configures the mux to serve GET request made to "/".
+func MountFrontendIndexHTML(mux goahttp.Muxer, h http.Handler) {
 	mux.Handle("GET", "/", h.ServeHTTP)
 }

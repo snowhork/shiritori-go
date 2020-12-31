@@ -54,11 +54,11 @@ var _ = Service("shiritori", func() {
 		})
 	})
 
-	Files("/", "./client/chat/home.html", func() {
+	Files("/", "./frontend/index.html", func() {
 	})
 })
 
-var BattleMessage = ResultType("BattleMessage", func(){
+var BattleMessage = ResultType("BattleMessage", func() {
 	Attributes(func() {
 		Attribute("type", String)
 		Attribute("msg", String)
@@ -87,4 +87,3 @@ var BattleEvent = ResultType("BattleEvent", func() {
 	})
 
 })
-

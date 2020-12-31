@@ -10,7 +10,7 @@ paths:
     get:
       tags:
       - shiritori
-      summary: Download ./client/chat/home.html
+      summary: Download ./frontend/index.html
       operationId: shiritori#/
       responses:
         "200":

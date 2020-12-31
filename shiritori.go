@@ -2,10 +2,11 @@ package shiritoriapi
 
 import (
 	"context"
-	"github.com/pkg/errors"
 	"io"
 	"log"
-	shiritori "shiritori/gen/shiritori"
+	"shiritori/gen/shiritori"
+
+	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -27,12 +28,12 @@ func (s *shiritorisrvc) Add(ctx context.Context, p *shiritori.AddPayload) (res i
 }
 
 // Battle implements battle.
-func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, stream shiritori.BattleServerStream) (error) {
+func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, stream shiritori.BattleServerStream) error {
 	if err := stream.Send(&shiritori.Battleevent{BattleID: &p.BattleID}); err != nil {
 		return stream.Close()
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
+	g, _ := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		for {
 			data, err := stream.Recv()
