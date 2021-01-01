@@ -2,7 +2,6 @@ package shiritoriapi
 
 import (
 	"context"
-	"io"
 	"shiritori/values"
 
 	"github.com/pkg/errors"
@@ -40,9 +39,7 @@ func (lis *BattleActionListener) Listen(ctx context.Context) error {
 					continue
 				}
 
-				if err != io.EOF {
-					return errors.Wrap(err, "Message Receive Error")
-				}
+				return err
 			}
 
 			if err := lis.handler.Handle(action); err != nil {
