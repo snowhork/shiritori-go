@@ -1,6 +1,6 @@
 package values
 
 type BattleRule struct {
-	LengthSet       []int
+	NumberSet       []ThemeNumber
 	MaxTimerSeconds int
 }

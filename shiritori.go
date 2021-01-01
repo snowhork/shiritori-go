@@ -3,6 +3,7 @@ package shiritoriapi
 import (
 	"context"
 	"log"
+	"shiritori/entity"
 	"shiritori/gen/shiritori"
 	"shiritori/pkg/wordchecker"
 	"shiritori/pkg/wordsigner"
@@ -18,20 +19,26 @@ type shiritorisrvc struct {
 }
 
 type WordChecker interface {
-	Check(ctx context.Context, word string) (bool, error)
+	Check(ctx context.Context, word values.WordBody) (bool, error)
 }
 
 type WordSigner interface {
-	Sign(word string, exists bool) string
+	Sign(word values.WordBody, exists bool) values.WordBodyHash
 }
 
 type RepositoryFactory struct {
 	BattleEvent BattleEventRepository
+	Battle      BattleRepository
 }
 
 type BattleEventRepository interface {
 	Insert(event values.BattleEvent) error
 	GetNewer(battleId values.BattleID, timestamp values.BattleEventTimestamp) ([]values.BattleEvent, error)
+}
+
+type BattleRepository interface {
+	Get(id values.BattleID) (*entity.Battle, error)
+	Upsert(entity *entity.Battle) error
 }
 
 // NewShiritori returns the shiritori service implementation.

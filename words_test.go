@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,8 @@ func Test_Words(t *testing.T) {
 		payload  *shiritori.WordsPayload
 		expected *shiritori.Wordresult
 	}{
-		{"When the word exists", &shiritori.WordsPayload{Word: "hoge"}, &shiritori.Wordresult{Word: "hoge", Exists: true, Hash: "hoge-true-key"}},
-		{"When the word doesn't exist", &shiritori.WordsPayload{Word: "piyo"}, &shiritori.Wordresult{Word: "piyo", Exists: false, Hash: "piyo-false-key"}},
+		{"When the word exists", &shiritori.WordsPayload{Word: "りんご"}, &shiritori.Wordresult{Word: "りんご", Exists: true, Hash: "りんご-true-key"}},
+		{"When the word doesn't exist", &shiritori.WordsPayload{Word: "ばなな"}, &shiritori.Wordresult{Word: "ばなな", Exists: false, Hash: "ばなな-false-key"}},
 	}
 
 	s := &shiritorisrvc{
@@ -34,8 +35,8 @@ func Test_Words(t *testing.T) {
 
 type mockWordChecker struct{}
 
-func (*mockWordChecker) Check(ctx context.Context, word string) (bool, error) {
-	if word == "hoge" {
+func (*mockWordChecker) Check(ctx context.Context, word values.WordBody) (bool, error) {
+	if word == "りんご" {
 		return true, nil
 	}
 	return false, nil
@@ -43,6 +44,6 @@ func (*mockWordChecker) Check(ctx context.Context, word string) (bool, error) {
 
 type mockWordSigner struct{}
 
-func (*mockWordSigner) Sign(word string, exists bool) string {
-	return fmt.Sprintf("%s-%v-%s", word, exists, "key")
+func (*mockWordSigner) Sign(word values.WordBody, exists bool) values.WordBodyHash {
+	return values.WordBodyHash(fmt.Sprintf("%s-%v-%s", word, exists, "key"))
 }

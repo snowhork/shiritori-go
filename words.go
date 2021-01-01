@@ -3,22 +3,28 @@ package shiritoriapi
 import (
 	"context"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 
 	"github.com/pkg/errors"
 )
 
 func (s *shiritorisrvc) Words(ctx context.Context, p *shiritori.WordsPayload) (*shiritori.Wordresult, error) {
-	exists, err := s.wordChecker.Check(ctx, p.Word)
+	wordBody, err := values.NewWordBody(p.Word)
+	if err != nil {
+		return nil, err
+	}
+
+	exists, err := s.wordChecker.Check(ctx, wordBody)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "WordCheck Error")
 	}
 
-	hash := s.wordSigner.Sign(p.Word, exists)
+	hash := s.wordSigner.Sign(wordBody, exists)
 
 	return &shiritori.Wordresult{
-		Word:   p.Word,
+		Word:   string(wordBody),
 		Exists: exists,
-		Hash:   hash,
+		Hash:   string(hash),
 	}, nil
 }

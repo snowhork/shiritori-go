@@ -18,6 +18,6 @@ func NewBattle(id values.BattleID, rule values.BattleRule, state values.BattleSt
 	}, nil
 }
 
-func (b *Battle) ChangeState(event values.BattleEvent) (bool, error) {
-	return nil
+func (b *Battle) ChangeStateByPostWord(p values.BattleActionPostWordPayload) bool {
+	return b.State.ThemeChar == p.WordBody.LastChar()
 }
