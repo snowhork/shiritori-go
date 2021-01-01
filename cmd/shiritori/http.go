@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"os"
 	shiritorisvr "shiritori/gen/http/shiritori/server"
-	"shiritori/gen/shiritori"
+	shiritori "shiritori/gen/shiritori"
 	"sync"
 	"time"
 
@@ -51,11 +51,22 @@ func handleHTTPServer(ctx context.Context, u *url.URL, shiritoriEndpoints *shiri
 	// responses.
 	var (
 		shiritoriServer *shiritorisvr.Server
+		configurer      = shiritorisvr.NewConnConfigurer(func(conn *websocket.Conn, cancel context.CancelFunc) *websocket.Conn {
+
+			conn.SetCloseHandler(func(code int, text string) error {
+				// gorilla default CloseHandler sends CloseMessage on Close()
+				// But, websocket by goagen sends same message on Close()
+				// So, we may need to skip default CloseHandler.
+
+				return nil
+			})
+			return conn
+		})
 	)
 	{
 		eh := errorHandler(logger)
 		upgrader := &websocket.Upgrader{}
-		shiritoriServer = shiritorisvr.New(shiritoriEndpoints, mux, dec, enc, eh, nil, upgrader, nil)
+		shiritoriServer = shiritorisvr.New(shiritoriEndpoints, mux, dec, enc, eh, nil, upgrader, configurer)
 		if debug {
 			servers := goahttp.Servers{
 				shiritoriServer,

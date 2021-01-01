@@ -7,6 +7,8 @@ import (
 	"shiritori/values"
 	"time"
 
+	"github.com/gorilla/websocket"
+
 	"github.com/pkg/errors"
 	"golang.org/x/sync/errgroup"
 )
@@ -20,15 +22,29 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 
 	ticker := time.NewTicker(50 * time.Millisecond)
 	handler := NewActionHandler(battleId, s.repo)
+	ctx, cancel := context.WithCancel(ctx)
 
 	lis := NewBattleActionListener(
 		handler,
 		func() (values.BattleAction, error) {
 			payload, err := stream.Recv()
 			if err != nil {
+				if websocket.IsCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+					s.logger.Printf("close websocket: %v", err)
+					cancel()
+					return values.BattleAction{}, nil
+				}
+
 				if err != io.EOF {
 					return values.BattleAction{}, errors.Wrap(err, "Message Receive Error")
 				}
+				return values.BattleAction{}, err
+			}
+
+			s.logger.Printf("read paylod. Type: %v", payload.Type)
+
+			if payload.MessagePayload.Message == "close" {
+				cancel()
 			}
 
 			return parseStreamingPayloadToEntity(payload, time.Now().Unix())
