@@ -3,8 +3,8 @@ package shiritoriapi
 import (
 	"context"
 	"io"
-	"shiritori/entity"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 
 	"github.com/pkg/errors"
 )
@@ -38,18 +38,11 @@ func (s *shiritorisrvc) listen(ctx context.Context, battleId string, stream rece
 }
 
 func (s *shiritorisrvc) processPayload(ctx context.Context, battleId string, payload *shiritori.Battlestreamingpayload, timestamp int64) error {
-	var data entity.BattleEvent
+	var data values.BattleEvent
 
 	switch payload.Type {
 	case "message":
-		data = entity.BattleEvent{
-			Timestamp: timestamp,
-			BattleID:  battleId,
-			Type:      entity.EventType_Message,
-			MessagePayload: &entity.MessagePayload{
-				Message: payload.MessagePayload.Message,
-			},
-		}
+		data = values.NewBattleEventMessage(battleId, timestamp, payload.MessagePayload.Message)
 	case "close":
 	}
 

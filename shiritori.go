@@ -3,11 +3,11 @@ package shiritoriapi
 import (
 	"context"
 	"log"
-	"shiritori/entity"
 	"shiritori/gen/shiritori"
 	"shiritori/pkg/wordchecker"
 	"shiritori/pkg/wordsigner"
 	"shiritori/repository/memory"
+	"shiritori/values"
 )
 
 type shiritorisrvc struct {
@@ -27,8 +27,8 @@ type WordSigner interface {
 
 type RepositoryFactory struct {
 	BattleEvent interface {
-		Insert(event entity.BattleEvent) error
-		GetNewer(battleId string, timestamp int64) ([]entity.BattleEvent, error)
+		Insert(event values.BattleEvent) error
+		GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error)
 	}
 }
 

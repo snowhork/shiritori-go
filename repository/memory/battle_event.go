@@ -1,24 +1,24 @@
 package memory
 
-import "shiritori/entity"
+import "shiritori/values"
 
 type BattleEventRepository struct {
-	store map[string][]entity.BattleEvent
+	store map[string][]values.BattleEvent
 }
 
 func NewBattleEventRepository() *BattleEventRepository {
 	return &BattleEventRepository{
-		store: map[string][]entity.BattleEvent{},
+		store: map[string][]values.BattleEvent{},
 	}
 }
 
-func (repo *BattleEventRepository) Insert(event entity.BattleEvent) error {
+func (repo *BattleEventRepository) Insert(event values.BattleEvent) error {
 	repo.store[event.BattleID] = append(repo.store[event.BattleID], event)
 	return nil
 }
 
-func (repo *BattleEventRepository) GetNewer(battleId string, timestamp int64) ([]entity.BattleEvent, error) {
-	var res []entity.BattleEvent
+func (repo *BattleEventRepository) GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error) {
+	var res []values.BattleEvent
 
 	if events, ok := repo.store[battleId]; ok {
 		for _, e := range events {

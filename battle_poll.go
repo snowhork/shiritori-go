@@ -2,8 +2,8 @@ package shiritoriapi
 
 import (
 	"context"
-	"shiritori/entity"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 	"sort"
 	"time"
 
@@ -50,7 +50,7 @@ func (s *shiritorisrvc) poll(ctx context.Context, battleId string, stopper <-cha
 	}
 }
 
-func (s *shiritorisrvc) checkEvent(ctx context.Context, battleId string, current int64) ([]entity.BattleEvent, error) {
+func (s *shiritorisrvc) checkEvent(ctx context.Context, battleId string, current int64) ([]values.BattleEvent, error) {
 	events, err := s.repo.BattleEvent.GetNewer(battleId, current)
 	if err != nil {
 		return nil, errors.Wrap(err, "Get BattleEvent Error")
@@ -59,9 +59,9 @@ func (s *shiritorisrvc) checkEvent(ctx context.Context, battleId string, current
 	return events, nil
 }
 
-func parseEntityToStreamingResult(event *entity.BattleEvent) (*shiritori.Battlestreamingresult, error) {
+func parseEntityToStreamingResult(event *values.BattleEvent) (*shiritori.Battlestreamingresult, error) {
 	switch event.Type {
-	case entity.EventType_Message:
+	case values.EventType_Message:
 		if event.MessagePayload == nil {
 			return nil, errors.New("Message Payload must not be empty")
 		}

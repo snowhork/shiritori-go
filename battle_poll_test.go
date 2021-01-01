@@ -4,8 +4,8 @@ import (
 	"context"
 	"log"
 	"os"
-	"shiritori/entity"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 	"testing"
 	"time"
 
@@ -17,17 +17,17 @@ func Test_poll(t *testing.T) {
 
 	cases := []struct {
 		name     string
-		entities []entity.BattleEvent
+		entities []values.BattleEvent
 		expected []shiritori.Battlestreamingresult
 	}{
 		{"pass single event",
-			[]entity.BattleEvent{{Type: entity.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}}},
+			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
 			[]shiritori.Battlestreamingresult{{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}}},
 		},
 		{"sort multi events",
-			[]entity.BattleEvent{
-				{Type: entity.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
-				{Type: entity.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 			[]shiritori.Battlestreamingresult{
 				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
@@ -35,18 +35,18 @@ func Test_poll(t *testing.T) {
 			},
 		},
 		{"filter old events",
-			[]entity.BattleEvent{
-				{Type: entity.EventType_Message, Timestamp: -1, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
-				{Type: entity.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: -1, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 			[]shiritori.Battlestreamingresult{
 				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
 			},
 		},
 		{"ignore other battle events",
-			[]entity.BattleEvent{
-				{Type: entity.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
-				{Type: entity.EventType_Message, Timestamp: 3, BattleID: "unknown", MessagePayload: &entity.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: "unknown", MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 			[]shiritori.Battlestreamingresult{
 				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},

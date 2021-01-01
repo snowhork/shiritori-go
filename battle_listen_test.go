@@ -5,8 +5,8 @@ import (
 	"errors"
 	"log"
 	"os"
-	"shiritori/entity"
 	"shiritori/gen/shiritori"
+	"shiritori/values"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,11 +18,11 @@ func Test_listen(t *testing.T) {
 	cases := []struct {
 		name     string
 		payload  []shiritori.Battlestreamingpayload
-		expected []entity.BattleEvent
+		expected []values.BattleEvent
 	}{{
 		"single message",
 		[]shiritori.Battlestreamingpayload{{Type: "message", MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}}},
-		[]entity.BattleEvent{{Type: entity.EventType_Message, Timestamp: 1, BattleID: mainBattleID, MessagePayload: &entity.MessagePayload{Message: "Hello, world"}}},
+		[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 1, BattleID: mainBattleID, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
 	}}
 
 	for _, c := range cases {
