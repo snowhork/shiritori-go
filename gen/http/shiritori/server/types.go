@@ -42,13 +42,21 @@ type MessagePayloadResponseBody struct {
 // BattlestreamingpayloadStreamingBody is used to define fields on request body
 // types.
 type BattlestreamingpayloadStreamingBody struct {
-	Type           *string                      `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
-	MessagePayload *MessagePayloadStreamingBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+	Type            *string                       `form:"type,omitempty" json:"type,omitempty" xml:"type,omitempty"`
+	MessagePayload  *MessagePayloadStreamingBody  `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+	PostWordPayload *PostWordPayloadStreamingBody `form:"post_word_payload,omitempty" json:"post_word_payload,omitempty" xml:"post_word_payload,omitempty"`
 }
 
 // MessagePayloadStreamingBody is used to define fields on request body types.
 type MessagePayloadStreamingBody struct {
 	Message *string `form:"message,omitempty" json:"message,omitempty" xml:"message,omitempty"`
+}
+
+// PostWordPayloadStreamingBody is used to define fields on request body types.
+type PostWordPayloadStreamingBody struct {
+	Word   *string `form:"word,omitempty" json:"word,omitempty" xml:"word,omitempty"`
+	Exists *bool   `form:"exists,omitempty" json:"exists,omitempty" xml:"exists,omitempty"`
+	Hash   *string `form:"hash,omitempty" json:"hash,omitempty" xml:"hash,omitempty"`
 }
 
 // NewWordsResponseBody builds the HTTP response body from the result of the
@@ -93,9 +101,10 @@ func NewWordsPayload(word string) *shiritori.WordsPayload {
 }
 
 // NewBattlePayload builds a shiritori service battle endpoint payload.
-func NewBattlePayload(battleID string) *shiritori.BattlePayload {
+func NewBattlePayload(battleID string, userID string) *shiritori.BattlePayload {
 	v := &shiritori.BattlePayload{}
 	v.BattleID = battleID
+	v.UserID = userID
 
 	return v
 }
@@ -108,6 +117,9 @@ func NewBattleStreamingBody(body *BattleStreamingBody) *shiritori.Battlestreamin
 	}
 	if body.MessagePayload != nil {
 		v.MessagePayload = marshalMessagePayloadStreamingBodyToShiritoriMessagePayload(body.MessagePayload)
+	}
+	if body.PostWordPayload != nil {
+		v.PostWordPayload = marshalPostWordPayloadStreamingBodyToShiritoriPostWordPayload(body.PostWordPayload)
 	}
 
 	return v
@@ -126,6 +138,11 @@ func ValidateBattleStreamingBody(body *BattleStreamingBody) (err error) {
 	}
 	if body.MessagePayload != nil {
 		if err2 := ValidateMessagePayloadStreamingBody(body.MessagePayload); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
+	if body.PostWordPayload != nil {
+		if err2 := ValidatePostWordPayloadStreamingBody(body.PostWordPayload); err2 != nil {
 			err = goa.MergeErrors(err, err2)
 		}
 	}
@@ -148,6 +165,11 @@ func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStr
 			err = goa.MergeErrors(err, err2)
 		}
 	}
+	if body.PostWordPayload != nil {
+		if err2 := ValidatePostWordPayloadStreamingBody(body.PostWordPayload); err2 != nil {
+			err = goa.MergeErrors(err, err2)
+		}
+	}
 	return
 }
 
@@ -156,6 +178,21 @@ func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStr
 func ValidateMessagePayloadStreamingBody(body *MessagePayloadStreamingBody) (err error) {
 	if body.Message == nil {
 		err = goa.MergeErrors(err, goa.MissingFieldError("message", "body"))
+	}
+	return
+}
+
+// ValidatePostWordPayloadStreamingBody runs the validations defined on
+// PostWordPayloadStreamingBody
+func ValidatePostWordPayloadStreamingBody(body *PostWordPayloadStreamingBody) (err error) {
+	if body.Word == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("word", "body"))
+	}
+	if body.Hash == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("hash", "body"))
+	}
+	if body.Exists == nil {
+		err = goa.MergeErrors(err, goa.MissingFieldError("exists", "body"))
 	}
 	return
 }

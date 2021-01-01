@@ -15,6 +15,7 @@ import (
 
 func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, stream shiritori.BattleServerStream) error {
 	battleId := values.BattleID(p.BattleID)
+	userId := values.UserID(p.UserID)
 
 	if err := stream.Send(&shiritori.Battlestreamingresult{Type: "init"}); err != nil {
 		return stream.Close()
@@ -23,6 +24,9 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 	ticker := time.NewTicker(50 * time.Millisecond)
 	handler := NewActionHandler(battleId, s.repo)
 	ctx, cancel := context.WithCancel(ctx)
+	defer func() {
+		ticker.Stop()
+	}()
 
 	lis := NewBattleActionListener(
 		handler,
@@ -41,22 +45,31 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 				return values.BattleAction{}, err
 			}
 
-			s.logger.Printf("read paylod. Type: %v", payload.Type)
+			s.logger.Printf("read paylod. Type: %s", payload.Type)
 
 			if payload.MessagePayload.Message == "close" {
 				cancel()
 			}
 
-			return parseStreamingPayloadToEntity(payload, time.Now().Unix())
+			timestamp := values.BattleEventTimestamp(time.Now().Unix())
+			res, err := parseStreamingPayloadToEntity(payload, timestamp, userId)
+			if err != nil {
+				s.logger.Printf("parse payload error: %v", err)
+				return values.BattleAction{}, EmptyBattleEventError
+			}
+
+			return res, nil
 		})
 
 	sub := NewBattleEventSubscriber(ticker.C, values.BattleEventTimestamp(time.Now().Unix()), values.BattleID(battleId), s.repo.BattleEvent,
 		func(event values.BattleEvent) error {
 			res, err := convertEntityToStreamingResult(event)
 			if err != nil {
+				s.logger.Printf("convert entity error: %v", err)
 				return err
 			}
 
+			s.logger.Printf("sent Result paylod. Type: %s", res.Type)
 			return stream.Send(res)
 		})
 
@@ -83,15 +96,29 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 	return stream.Close()
 }
 
-func parseStreamingPayloadToEntity(payload *shiritori.Battlestreamingpayload, timestamp int64) (values.BattleAction, error) {
-	switch payload.Type {
+func parseStreamingPayloadToEntity(p *shiritori.Battlestreamingpayload, timestamp values.BattleEventTimestamp, userID values.UserID) (values.BattleAction, error) {
+	switch p.Type {
 	case "message":
-		return values.NewMessageBattleAction(values.BattleEventTimestamp(timestamp), payload.MessagePayload.Message), nil
+		if p.MessagePayload == nil {
+			return values.BattleAction{}, errors.New("MessagePayload must not be nil")
+		}
+
+		return values.NewMessageBattleAction(timestamp, userID, p.MessagePayload.Message), nil
+	case "post_word":
+		if p.PostWordPayload == nil {
+			return values.BattleAction{}, errors.New("PostWordPayload must not be nil")
+		}
+
+		word, err := values.NewWordBody(p.PostWordPayload.Word)
+		if err != nil {
+			return values.BattleAction{}, err
+		}
+		return values.NewMessageBattleActionPostWord(timestamp, userID, word, values.WordBodyHash(p.PostWordPayload.Hash), p.PostWordPayload.Exists), nil
 	case "close":
 		return values.BattleAction{}, EmptyBattleEventError
 	}
 
-	return values.BattleAction{}, errors.New("UnKnown payload Type")
+	return values.BattleAction{}, errors.New("Unknown payload Type")
 }
 
 func convertEntityToStreamingResult(event values.BattleEvent) (*shiritori.Battlestreamingresult, error) {

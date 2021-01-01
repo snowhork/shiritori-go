@@ -77,13 +77,15 @@ type Wordresult struct {
 // BattlePayload is the payload type of the shiritori service battle method.
 type BattlePayload struct {
 	BattleID string
+	UserID   string
 }
 
 // Battlestreamingpayload is the streaming payload type of the shiritori
 // service battle method.
 type Battlestreamingpayload struct {
-	Type           string
-	MessagePayload *MessagePayload
+	Type            string
+	MessagePayload  *MessagePayload
+	PostWordPayload *PostWordPayload
 }
 
 // Battlestreamingresult is the result type of the shiritori service battle
@@ -96,6 +98,12 @@ type Battlestreamingresult struct {
 
 type MessagePayload struct {
 	Message string
+}
+
+type PostWordPayload struct {
+	Word   string
+	Exists bool
+	Hash   string
 }
 
 // NewWordresult initializes result type Wordresult from viewed result type

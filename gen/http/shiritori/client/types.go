@@ -37,13 +37,21 @@ type BattleResponseBody struct {
 // BattlestreamingpayloadStreamingBody is used to define fields on request body
 // types.
 type BattlestreamingpayloadStreamingBody struct {
-	Type           string                       `form:"type" json:"type" xml:"type"`
-	MessagePayload *MessagePayloadStreamingBody `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+	Type            string                        `form:"type" json:"type" xml:"type"`
+	MessagePayload  *MessagePayloadStreamingBody  `form:"message_payload,omitempty" json:"message_payload,omitempty" xml:"message_payload,omitempty"`
+	PostWordPayload *PostWordPayloadStreamingBody `form:"post_word_payload,omitempty" json:"post_word_payload,omitempty" xml:"post_word_payload,omitempty"`
 }
 
 // MessagePayloadStreamingBody is used to define fields on request body types.
 type MessagePayloadStreamingBody struct {
 	Message string `form:"message" json:"message" xml:"message"`
+}
+
+// PostWordPayloadStreamingBody is used to define fields on request body types.
+type PostWordPayloadStreamingBody struct {
+	Word   string `form:"word" json:"word" xml:"word"`
+	Exists bool   `form:"exists" json:"exists" xml:"exists"`
+	Hash   string `form:"hash" json:"hash" xml:"hash"`
 }
 
 // MessagePayloadResponseBody is used to define fields on response body types.
@@ -59,6 +67,9 @@ func NewBattleStreamingBody(p *shiritori.Battlestreamingpayload) *BattleStreamin
 	}
 	if p.MessagePayload != nil {
 		body.MessagePayload = marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(p.MessagePayload)
+	}
+	if p.PostWordPayload != nil {
+		body.PostWordPayload = marshalShiritoriPostWordPayloadToPostWordPayloadStreamingBody(p.PostWordPayload)
 	}
 	return body
 }

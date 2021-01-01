@@ -56,20 +56,20 @@ var _ = Service("shiritori", func() {
 	Method("battle", func() {
 		Payload(func() {
 			Attribute("battleId", String)
-			Required("battleId")
+			Attribute("userId", String)
+			Required("battleId", "userId")
 		})
 
 		StreamingPayload(BattleStreamingPayload)
 		StreamingResult(BattleStreamingResult)
 
 		HTTP(func() {
-			GET("/streams/battles/{battleId}")
+			GET("/streams/battles/{battleId}/{userId}")
 			Response(StatusOK)
 		})
 	})
 
-	Files("/", "./frontend/index.html", func() {
-	})
+	Files("/", "./frontend/index.html", func() {})
 })
 
 var BattleStreamingPayload = ResultType("BattleStreamingPayload", func() {
@@ -79,6 +79,7 @@ var BattleStreamingPayload = ResultType("BattleStreamingPayload", func() {
 		})
 
 		Attribute("message_payload", MessagePayload)
+		Attribute("post_word_payload", PostWordPayload)
 		Required("type")
 	})
 })
@@ -96,6 +97,14 @@ var BattleStreamingResult = ResultType("BattleStreamingResult", func() {
 var MessagePayload = Type("MessagePayload", func() {
 	Attribute("message", String)
 	Required("message")
+})
+
+var PostWordPayload = Type("PostWordPayload", func() {
+	Attribute("word", String)
+	Attribute("exists", Boolean)
+	Attribute("hash", String)
+
+	Required("word", "hash", "exists")
 })
 
 var WordResult = ResultType("WordResult", func() {

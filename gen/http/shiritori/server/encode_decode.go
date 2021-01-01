@@ -100,11 +100,13 @@ func DecodeBattleRequest(mux goahttp.Muxer, decoder func(*http.Request) goahttp.
 	return func(r *http.Request) (interface{}, error) {
 		var (
 			battleID string
+			userID   string
 
 			params = mux.Vars(r)
 		)
 		battleID = params["battleId"]
-		payload := NewBattlePayload(battleID)
+		userID = params["userId"]
+		payload := NewBattlePayload(battleID, userID)
 
 		return payload, nil
 	}
@@ -133,6 +135,22 @@ func marshalMessagePayloadStreamingBodyToShiritoriMessagePayload(v *MessagePaylo
 	}
 	res := &shiritori.MessagePayload{
 		Message: *v.Message,
+	}
+
+	return res
+}
+
+// marshalPostWordPayloadStreamingBodyToShiritoriPostWordPayload builds a value
+// of type *shiritori.PostWordPayload from a value of type
+// *PostWordPayloadStreamingBody.
+func marshalPostWordPayloadStreamingBodyToShiritoriPostWordPayload(v *PostWordPayloadStreamingBody) *shiritori.PostWordPayload {
+	if v == nil {
+		return nil
+	}
+	res := &shiritori.PostWordPayload{
+		Word:   *v.Word,
+		Exists: *v.Exists,
+		Hash:   *v.Hash,
 	}
 
 	return res

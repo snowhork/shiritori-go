@@ -65,7 +65,7 @@ func New(
 		Mounts: []*MountPoint{
 			{"Add", "GET", "/add/{a}/{b}"},
 			{"Words", "GET", "/words/{word}"},
-			{"Battle", "GET", "/streams/battles/{battleId}"},
+			{"Battle", "GET", "/streams/battles/{battleId}/{userId}"},
 			{"./frontend/index.html", "GET", "/"},
 		},
 		Add:    NewAddHandler(e.Add, mux, decoder, encoder, errhandler, formatter),
@@ -205,7 +205,7 @@ func MountBattleHandler(mux goahttp.Muxer, h http.Handler) {
 			h.ServeHTTP(w, r)
 		}
 	}
-	mux.Handle("GET", "/streams/battles/{battleId}", f)
+	mux.Handle("GET", "/streams/battles/{battleId}/{userId}", f)
 }
 
 // NewBattleHandler creates a HTTP handler which loads the HTTP request and

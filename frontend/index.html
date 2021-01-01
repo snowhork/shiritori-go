@@ -34,7 +34,7 @@ window.onload = function () {
     };
 
     if (window["WebSocket"]) {
-        conn = new WebSocket("ws://localhost:8088/streams/battles/1234");
+        conn = new WebSocket("ws://localhost:8088/streams/battles/1234/3456");
 
         conn.onopen = function (evt) {
            console.log(evt);

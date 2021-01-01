@@ -153,6 +153,7 @@ func DecodeWordsResponse(decoder func(*http.Response) goahttp.Decoder, restoreBo
 func (c *Client) BuildBattleRequest(ctx context.Context, v interface{}) (*http.Request, error) {
 	var (
 		battleID string
+		userID   string
 	)
 	{
 		p, ok := v.(*shiritori.BattlePayload)
@@ -160,6 +161,7 @@ func (c *Client) BuildBattleRequest(ctx context.Context, v interface{}) (*http.R
 			return nil, goahttp.ErrInvalidType("shiritori", "battle", "*shiritori.BattlePayload", v)
 		}
 		battleID = p.BattleID
+		userID = p.UserID
 	}
 	scheme := c.scheme
 	switch c.scheme {
@@ -168,7 +170,7 @@ func (c *Client) BuildBattleRequest(ctx context.Context, v interface{}) (*http.R
 	case "https":
 		scheme = "wss"
 	}
-	u := &url.URL{Scheme: scheme, Host: c.host, Path: BattleShiritoriPath(battleID)}
+	u := &url.URL{Scheme: scheme, Host: c.host, Path: BattleShiritoriPath(battleID, userID)}
 	req, err := http.NewRequest("GET", u.String(), nil)
 	if err != nil {
 		return nil, goahttp.ErrInvalidURL("shiritori", "battle", u.String(), err)
@@ -245,6 +247,22 @@ func marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(v *shiritori.Me
 	}
 	res := &MessagePayloadStreamingBody{
 		Message: v.Message,
+	}
+
+	return res
+}
+
+// marshalShiritoriPostWordPayloadToPostWordPayloadStreamingBody builds a value
+// of type *PostWordPayloadStreamingBody from a value of type
+// *shiritori.PostWordPayload.
+func marshalShiritoriPostWordPayloadToPostWordPayloadStreamingBody(v *shiritori.PostWordPayload) *PostWordPayloadStreamingBody {
+	if v == nil {
+		return nil
+	}
+	res := &PostWordPayloadStreamingBody{
+		Word:   v.Word,
+		Exists: v.Exists,
+		Hash:   v.Hash,
 	}
 
 	return res

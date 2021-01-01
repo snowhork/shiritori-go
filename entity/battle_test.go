@@ -26,7 +26,7 @@ func Test_Battle_ChangeStateByPostWord(t *testing.T) {
 		State: values.NewBattleState(
 			n3,
 			values.WordChar("り"),
-			p1.PlayerNumber,
+			p1,
 			values.NewPlayersNumbersQueueMap(map[values.BattlePlayerNumber]values.ThemeNumbersQueue{
 				values.BattlePlayerNumber(1): values.NewThemeNumbersQueue([]values.ThemeNumber{n1, n2, n3}),
 				values.BattlePlayerNumber(2): values.NewThemeNumbersQueue([]values.ThemeNumber{n1}),
@@ -34,13 +34,13 @@ func Test_Battle_ChangeStateByPostWord(t *testing.T) {
 		),
 	}
 
-	action := values.NewMessageBattleActionPostWord(values.BattleEventTimestamp(1), values.WordBody("りんご"), values.WordBodyHash(""), true, values.UserID("123"))
+	action := values.NewMessageBattleActionPostWord(values.BattleEventTimestamp(1), values.UserID("1"), values.WordBody("りんご"), values.WordBodyHash(""), true)
 	err := battle.ChangeStateByPostWord(*action.PostWordPayload)
 
 	assert.NoError(t, err)
 	assert.Equal(t, values.WordChar("ご"), battle.State.ThemeChar)
 	assert.Equal(t, n1, battle.State.ThemeNumber)
-	assert.Equal(t, p2.PlayerNumber, battle.State.CurrentPlayerNumber)
+	assert.Equal(t, p2, battle.State.CurrentBattlePlayer)
 
 	q, _ := battle.State.PlayersNumbersQueueMap.Get(p2.PlayerNumber)
 	assert.Equal(t, 3, len(q.Numbers)) // Queue

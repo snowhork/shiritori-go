@@ -8,15 +8,15 @@ import (
 type BattleState struct {
 	ThemeNumber            ThemeNumber
 	ThemeChar              WordChar
-	CurrentPlayerNumber    BattlePlayerNumber
+	CurrentBattlePlayer    BattlePlayer
 	PlayersNumbersQueueMap PlayersNumbersQueueMap
 }
 
-func NewBattleState(num ThemeNumber, c WordChar, currentPlayerNumber BattlePlayerNumber, queueMap PlayersNumbersQueueMap) BattleState {
+func NewBattleState(num ThemeNumber, c WordChar, currentPlayer BattlePlayer, queueMap PlayersNumbersQueueMap) BattleState {
 	return BattleState{
 		ThemeNumber:            num,
 		ThemeChar:              c,
-		CurrentPlayerNumber:    currentPlayerNumber,
+		CurrentBattlePlayer:    currentPlayer,
 		PlayersNumbersQueueMap: queueMap,
 	}
 }

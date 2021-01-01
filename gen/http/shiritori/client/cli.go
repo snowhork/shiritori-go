@@ -57,13 +57,18 @@ func BuildWordsPayload(shiritoriWordsWord string) (*shiritori.WordsPayload, erro
 
 // BuildBattlePayload builds the payload for the shiritori battle endpoint from
 // CLI flags.
-func BuildBattlePayload(shiritoriBattleBattleID string) (*shiritori.BattlePayload, error) {
+func BuildBattlePayload(shiritoriBattleBattleID string, shiritoriBattleUserID string) (*shiritori.BattlePayload, error) {
 	var battleID string
 	{
 		battleID = shiritoriBattleBattleID
 	}
+	var userID string
+	{
+		userID = shiritoriBattleUserID
+	}
 	v := &shiritori.BattlePayload{}
 	v.BattleID = battleID
+	v.UserID = userID
 
 	return v, nil
 }

@@ -22,6 +22,6 @@ func WordsShiritoriPath(word string) string {
 }
 
 // BattleShiritoriPath returns the URL path to the shiritori service battle HTTP endpoint.
-func BattleShiritoriPath(battleID string) string {
-	return fmt.Sprintf("/streams/battles/%v", battleID)
+func BattleShiritoriPath(battleID string, userID string) string {
+	return fmt.Sprintf("/streams/battles/%v/%v", battleID, userID)
 }

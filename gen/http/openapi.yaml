@@ -51,7 +51,7 @@ paths:
             format: int64
       schemes:
       - http
-  /streams/battles/{battleId}:
+  /streams/battles/{battleId}/{userId}:
     get:
       tags:
       - shiritori
@@ -59,6 +59,10 @@ paths:
       operationId: shiritori#battle
       parameters:
       - name: battleId
+        in: path
+        required: true
+        type: string
+      - name: userId
         in: path
         required: true
         type: string
@@ -94,9 +98,9 @@ definitions:
     properties:
       message:
         type: string
-        example: Commodi tempora sint tempore.
+        example: Molestias adipisci occaecati perspiciatis illo commodi necessitatibus.
     example:
-      message: Reiciendis labore unde sed recusandae nam.
+      message: Et voluptas fuga sint voluptatem velit.
     required:
     - message
   ShiritoriBattleResponseBody:
@@ -107,17 +111,17 @@ definitions:
         $ref: '#/definitions/MessagePayloadResponseBody'
       timestamp:
         type: integer
-        example: 1731503209999601179
+        example: 5784412983495985943
         format: int64
       type:
         type: string
-        example: Ut et architecto excepturi.
+        example: Quis in error est.
     description: BattleResponseBody result type (default view)
     example:
       message_payload:
-        message: Quam cumque voluptatem.
-      timestamp: 5795481755208264950
-      type: Sit ut ea eum odit laboriosam.
+        message: Excepturi veniam.
+      timestamp: 7341786561015235771
+      type: Aliquid quod deserunt possimus velit.
     required:
     - type
     - timestamp
@@ -127,18 +131,18 @@ definitions:
     properties:
       exists:
         type: boolean
-        example: true
+        example: false
       hash:
         type: string
-        example: Eos hic.
+        example: Dolore tempora blanditiis et dicta ipsum aut.
       word:
         type: string
-        example: Aut animi id ipsam vero.
+        example: Eius porro sint.
     description: WordsResponseBody result type (default view)
     example:
       exists: true
-      hash: Dolor eos aut qui eos ducimus ipsum.
-      word: Suscipit sapiente est temporibus repudiandae voluptate.
+      hash: Adipisci debitis.
+      word: Quaerat distinctio.
     required:
     - word
     - hash

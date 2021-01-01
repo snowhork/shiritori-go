@@ -29,7 +29,7 @@ func UsageCommands() string {
 
 // UsageExamples produces an example of a valid invocation of the CLI tool.
 func UsageExamples() string {
-	return os.Args[0] + ` shiritori add --a 3731139465252073695 --b 6423146713516749068` + "\n" +
+	return os.Args[0] + ` shiritori add --a 4128730765144291157 --b 926539717969228205` + "\n" +
 		""
 }
 
@@ -56,6 +56,7 @@ func ParseEndpoint(
 
 		shiritoriBattleFlags        = flag.NewFlagSet("battle", flag.ExitOnError)
 		shiritoriBattleBattleIDFlag = shiritoriBattleFlags.String("battle-id", "REQUIRED", "")
+		shiritoriBattleUserIDFlag   = shiritoriBattleFlags.String("user-id", "REQUIRED", "")
 	)
 	shiritoriFlags.Usage = shiritoriUsage
 	shiritoriAddFlags.Usage = shiritoriAddUsage
@@ -138,7 +139,7 @@ func ParseEndpoint(
 				data, err = shiritoric.BuildWordsPayload(*shiritoriWordsWordFlag)
 			case "battle":
 				endpoint = c.Battle()
-				data, err = shiritoric.BuildBattlePayload(*shiritoriBattleBattleIDFlag)
+				data, err = shiritoric.BuildBattlePayload(*shiritoriBattleBattleIDFlag, *shiritoriBattleUserIDFlag)
 			}
 		}
 	}
@@ -173,7 +174,7 @@ Add implements add.
     -b INT: Right operand
 
 Example:
-    `+os.Args[0]+` shiritori add --a 3731139465252073695 --b 6423146713516749068
+    `+os.Args[0]+` shiritori add --a 4128730765144291157 --b 926539717969228205
 `, os.Args[0])
 }
 
@@ -184,17 +185,18 @@ Words implements words.
     -word STRING: 
 
 Example:
-    `+os.Args[0]+` shiritori words --word "Dolores eius ut nobis minus eos."
+    `+os.Args[0]+` shiritori words --word "Officia voluptas dolorem."
 `, os.Args[0])
 }
 
 func shiritoriBattleUsage() {
-	fmt.Fprintf(os.Stderr, `%s [flags] shiritori battle -battle-id STRING
+	fmt.Fprintf(os.Stderr, `%s [flags] shiritori battle -battle-id STRING -user-id STRING
 
 Battle implements battle.
     -battle-id STRING: 
+    -user-id STRING: 
 
 Example:
-    `+os.Args[0]+` shiritori battle --battle-id "Ut ab."
+    `+os.Args[0]+` shiritori battle --battle-id "Repudiandae voluptate inventore voluptatem dolor eos." --user-id "Qui eos ducimus ipsum quidem ut et."
 `, os.Args[0])
 }

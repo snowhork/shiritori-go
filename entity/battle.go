@@ -20,7 +20,7 @@ func NewBattle(id values.BattleID, rule values.BattleRule, state values.BattleSt
 
 func (b *Battle) ChangeStateByPostWord(p values.BattleActionPostWordPayload) error {
 	nextChar := p.WordBody.LastChar()
-	nextPlayer, err := b.PlayerList.NextPlayer(b.State.CurrentPlayerNumber)
+	nextPlayer, err := b.PlayerList.NextPlayer(b.State.CurrentBattlePlayer.PlayerNumber)
 	nextQueueMap := map[values.BattlePlayerNumber]values.ThemeNumbersQueue{}
 
 	if err != nil {
@@ -56,6 +56,6 @@ func (b *Battle) ChangeStateByPostWord(p values.BattleActionPostWordPayload) err
 		}
 	}
 
-	b.State = values.NewBattleState(nextNumber, nextChar, nextPlayer.PlayerNumber, values.NewPlayersNumbersQueueMap(nextQueueMap))
+	b.State = values.NewBattleState(nextNumber, nextChar, nextPlayer, values.NewPlayersNumbersQueueMap(nextQueueMap))
 	return nil
 }

@@ -3,6 +3,7 @@ package values
 type BattleAction struct {
 	Type      BattleActionType
 	Timestamp BattleEventTimestamp
+	UserID    UserID
 
 	MessagePayload  *BattleActionMessagePayload
 	PostWordPayload *BattleActionPostWordPayload
@@ -21,28 +22,28 @@ type BattleActionPostWordPayload struct {
 	WordBody     WordBody
 	WordBodyHash WordBodyHash
 	WordExists   bool
-	UserID       UserID
 }
 
-func NewMessageBattleAction(timestamp BattleEventTimestamp, message string) BattleAction {
+func NewMessageBattleAction(timestamp BattleEventTimestamp, userID UserID, message string) BattleAction {
 	return BattleAction{
 		Type:      BattleActionType_Message,
 		Timestamp: timestamp,
+		UserID:    userID,
 		MessagePayload: &BattleActionMessagePayload{
 			Message: message,
 		},
 	}
 }
 
-func NewMessageBattleActionPostWord(timestamp BattleEventTimestamp, body WordBody, hash WordBodyHash, exists bool, userID UserID) BattleAction {
+func NewMessageBattleActionPostWord(timestamp BattleEventTimestamp, userID UserID, body WordBody, hash WordBodyHash, exists bool) BattleAction {
 	return BattleAction{
 		Type:      BattleActionType_PostWord,
 		Timestamp: timestamp,
+		UserID:    userID,
 		PostWordPayload: &BattleActionPostWordPayload{
 			WordBody:     body,
 			WordBodyHash: hash,
 			WordExists:   exists,
-			UserID:       userID,
 		},
 	}
 }
