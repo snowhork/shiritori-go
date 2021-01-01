@@ -75,7 +75,7 @@ var _ = Service("shiritori", func() {
 var BattleStreamingPayload = ResultType("BattleStreamingPayload", func() {
 	Attributes(func() {
 		Attribute("type", String, func() {
-			Enum("message", "close")
+			Enum("message", "close", "post_word")
 		})
 
 		Attribute("message_payload", MessagePayload)

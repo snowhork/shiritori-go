@@ -55,7 +55,7 @@ type MessagePayloadResponseBody struct {
 // "battle" endpoint of the "shiritori" service.
 func NewBattleStreamingBody(p *shiritori.Battlestreamingpayload) *BattleStreamingBody {
 	body := &BattleStreamingBody{
-		Type: p.Type,
+		Type: &p.Type,
 	}
 	if p.MessagePayload != nil {
 		body.MessagePayload = marshalShiritoriMessagePayloadToMessagePayloadStreamingBody(p.MessagePayload)
@@ -92,8 +92,8 @@ func NewBattlestreamingresultViewOK(body *BattleResponseBody) *shiritoriviews.Ba
 // ValidateBattlestreamingpayloadStreamingBody runs the validations defined on
 // BattlestreamingpayloadStreamingBody
 func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStreamingBody) (err error) {
-	if !(body.Type == "message" || body.Type == "close") {
-		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []interface{}{"message", "close"}))
+	if !(body.Type == "message" || body.Type == "close" || body.Type == "post_word") {
+		err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", body.Type, []interface{}{"message", "close", "post_word"}))
 	}
 	return
 }

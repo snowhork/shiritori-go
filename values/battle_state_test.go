@@ -26,7 +26,6 @@ func Test_BattleState_Validate(t *testing.T) {
 			assert.Equal(t, c.expected, s.Validate(c.word))
 		})
 	}
-
 }
 
 func Test_ThemeNumber_Validate(t *testing.T) {
@@ -50,5 +49,27 @@ func Test_ThemeNumber_Validate(t *testing.T) {
 			assert.Equal(t, c.expected, c.number.Validate(c.word))
 		})
 	}
+}
 
+func Test_ThemeNumbersQueue_Sample(t *testing.T) {
+	n1 := NewThemeNumber(2, false)
+	n2 := NewThemeNumber(3, false)
+
+	q := NewThemeNumbersQueue([]ThemeNumber{n1, n2})
+
+	n, res, err := q.Sample()
+	assert.Equal(t, 1, len(res))
+	assert.Equal(t, 2, len(q.Numbers))
+	assert.NoError(t, err)
+	assert.NotEqual(t, res[0], n)
+
+	q2 := NewThemeNumbersQueue(res)
+	n, res, err = q2.Sample()
+	assert.Equal(t, q2.Numbers[0], n)
+	assert.Equal(t, 0, len(res))
+	assert.NoError(t, err)
+
+	q3 := NewThemeNumbersQueue(res)
+	_, _, err = q3.Sample()
+	assert.Error(t, err)
 }

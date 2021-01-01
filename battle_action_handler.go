@@ -37,10 +37,13 @@ func (h *ActionHandler) handlePostWord(timestamp values.BattleEventTimestamp, p 
 			return err
 		}
 
-		if battle.ChangeStateByPostWord(*p) {
-			if err := h.repo.Battle.Upsert(battle); err != nil {
-				return err
-			}
+		if err := battle.ChangeStateByPostWord(*p); err != nil {
+			return err
+		}
+
+		if err := h.repo.Battle.Upsert(battle); err != nil {
+			return err
+
 		}
 	}
 

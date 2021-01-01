@@ -33,3 +33,16 @@ func NewMessageBattleAction(timestamp BattleEventTimestamp, message string) Batt
 		},
 	}
 }
+
+func NewMessageBattleActionPostWord(timestamp BattleEventTimestamp, body WordBody, hash WordBodyHash, exists bool, userID UserID) BattleAction {
+	return BattleAction{
+		Type:      BattleActionType_PostWord,
+		Timestamp: timestamp,
+		PostWordPayload: &BattleActionPostWordPayload{
+			WordBody:     body,
+			WordBodyHash: hash,
+			WordExists:   exists,
+			UserID:       userID,
+		},
+	}
+}

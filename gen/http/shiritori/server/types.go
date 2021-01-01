@@ -120,8 +120,8 @@ func ValidateBattleStreamingBody(body *BattleStreamingBody) (err error) {
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "message" || *body.Type == "close") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close"}))
+		if !(*body.Type == "message" || *body.Type == "close" || *body.Type == "post_word") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close", "post_word"}))
 		}
 	}
 	if body.MessagePayload != nil {
@@ -139,8 +139,8 @@ func ValidateBattlestreamingpayloadStreamingBody(body *BattlestreamingpayloadStr
 		err = goa.MergeErrors(err, goa.MissingFieldError("type", "body"))
 	}
 	if body.Type != nil {
-		if !(*body.Type == "message" || *body.Type == "close") {
-			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close"}))
+		if !(*body.Type == "message" || *body.Type == "close" || *body.Type == "post_word") {
+			err = goa.MergeErrors(err, goa.InvalidEnumValueError("body.type", *body.Type, []interface{}{"message", "close", "post_word"}))
 		}
 	}
 	if body.MessagePayload != nil {
