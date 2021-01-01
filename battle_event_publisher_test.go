@@ -12,7 +12,7 @@ import (
 )
 
 func Test_BattleEventPublisher(t *testing.T) {
-	mainBattleID := "1234"
+	mainBattleID := values.BattleID("1234")
 
 	cases := []struct {
 		name     string

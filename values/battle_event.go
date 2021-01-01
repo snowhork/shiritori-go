@@ -2,8 +2,8 @@ package values
 
 type BattleEvent struct {
 	Type      BattleEventType
-	Timestamp int64
-	BattleID  string
+	Timestamp BattleEventTimestamp
+	BattleID  BattleID
 
 	MessagePayload *MessagePayload
 }
@@ -17,7 +17,7 @@ type MessagePayload struct {
 
 const EventType_Message = BattleEventType("message")
 
-func NewBattleEventMessage(battleId string, timestamp int64, message string) BattleEvent {
+func NewBattleEventMessage(battleId BattleID, timestamp BattleEventTimestamp, message string) BattleEvent {
 	return BattleEvent{
 		Type:      EventType_Message,
 		BattleID:  battleId,

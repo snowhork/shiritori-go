@@ -31,7 +31,7 @@ type RepositoryFactory struct {
 
 type BattleEventRepository interface {
 	Insert(event values.BattleEvent) error
-	GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error)
+	GetNewer(battleId values.BattleID, timestamp values.BattleEventTimestamp) ([]values.BattleEvent, error)
 }
 
 // NewShiritori returns the shiritori service implementation.

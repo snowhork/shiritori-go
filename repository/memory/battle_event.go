@@ -3,12 +3,12 @@ package memory
 import "shiritori/values"
 
 type BattleEventRepository struct {
-	store map[string][]values.BattleEvent
+	store map[values.BattleID][]values.BattleEvent
 }
 
 func NewBattleEventRepository() *BattleEventRepository {
 	return &BattleEventRepository{
-		store: map[string][]values.BattleEvent{},
+		store: map[values.BattleID][]values.BattleEvent{},
 	}
 }
 
@@ -17,7 +17,7 @@ func (repo *BattleEventRepository) Insert(event values.BattleEvent) error {
 	return nil
 }
 
-func (repo *BattleEventRepository) GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error) {
+func (repo *BattleEventRepository) GetNewer(battleId values.BattleID, timestamp values.BattleEventTimestamp) ([]values.BattleEvent, error) {
 	var res []values.BattleEvent
 
 	if events, ok := repo.store[battleId]; ok {

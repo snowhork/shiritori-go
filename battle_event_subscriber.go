@@ -11,15 +11,15 @@ import (
 
 type BattleEventSubscriber struct {
 	ticker   <-chan time.Time
-	lastTime int64
-	battleID string
+	lastTime values.BattleEventTimestamp
+	battleID values.BattleID
 	repo     BattleEventRepository
 	callback BattleEventSubscribe
 }
 
 type BattleEventSubscribe func(event values.BattleEvent) error
 
-func NewBattleEventSubscriber(ticker <-chan time.Time, currentTime int64, battleID string, repo BattleEventRepository, callback BattleEventSubscribe) *BattleEventSubscriber {
+func NewBattleEventSubscriber(ticker <-chan time.Time, currentTime values.BattleEventTimestamp, battleID values.BattleID, repo BattleEventRepository, callback BattleEventSubscribe) *BattleEventSubscriber {
 	return &BattleEventSubscriber{ticker: ticker, lastTime: currentTime, battleID: battleID, repo: repo, callback: callback}
 }
 

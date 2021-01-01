@@ -33,7 +33,7 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 			return parseStreamingPayloadToEntity(battleId, payload, time.Now().Unix())
 		})
 
-	sub := NewBattleEventSubscriber(ticker.C, time.Now().Unix(), battleId, s.repo.BattleEvent,
+	sub := NewBattleEventSubscriber(ticker.C, values.BattleEventTimestamp(time.Now().Unix()), values.BattleID(battleId), s.repo.BattleEvent,
 		func(event values.BattleEvent) error {
 			res, err := convertEntityToStreamingResult(event)
 			if err != nil {
@@ -69,7 +69,7 @@ func (s *shiritorisrvc) Battle(ctx context.Context, p *shiritori.BattlePayload, 
 func parseStreamingPayloadToEntity(battleId string, payload *shiritori.Battlestreamingpayload, timestamp int64) (values.BattleEvent, error) {
 	switch payload.Type {
 	case "message":
-		return values.NewBattleEventMessage(battleId, timestamp, payload.MessagePayload.Message), nil
+		return values.NewBattleEventMessage(values.BattleID(battleId), values.BattleEventTimestamp(timestamp), payload.MessagePayload.Message), nil
 	case "close":
 		return values.BattleEvent{}, EmptyBattleEventError
 	}
@@ -85,7 +85,7 @@ func convertEntityToStreamingResult(event values.BattleEvent) (*shiritori.Battle
 		}
 
 		return &shiritori.Battlestreamingresult{
-			Timestamp: event.Timestamp,
+			Timestamp: int64(event.Timestamp),
 			Type:      "message",
 			MessagePayload: &shiritori.MessagePayload{
 				Message: event.MessagePayload.Message,
