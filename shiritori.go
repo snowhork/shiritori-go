@@ -26,10 +26,12 @@ type WordSigner interface {
 }
 
 type RepositoryFactory struct {
-	BattleEvent interface {
-		Insert(event values.BattleEvent) error
-		GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error)
-	}
+	BattleEvent BattleEventRepository
+}
+
+type BattleEventRepository interface {
+	Insert(event values.BattleEvent) error
+	GetNewer(battleId string, timestamp int64) ([]values.BattleEvent, error)
 }
 
 // NewShiritori returns the shiritori service implementation.

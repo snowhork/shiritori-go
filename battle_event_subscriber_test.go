@@ -2,9 +2,6 @@ package shiritoriapi
 
 import (
 	"context"
-	"log"
-	"os"
-	"shiritori/gen/shiritori"
 	"shiritori/values"
 	"testing"
 	"time"
@@ -12,26 +9,26 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func Test_poll(t *testing.T) {
+func Test_BattleEventSubscriber(t *testing.T) {
 	mainBattleId := "1234"
 
 	cases := []struct {
 		name     string
 		entities []values.BattleEvent
-		expected []shiritori.Battlestreamingresult
+		expected []values.BattleEvent
 	}{
 		{"pass single event",
 			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
-			[]shiritori.Battlestreamingresult{{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}}},
+			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
 		},
 		{"sort multi events",
 			[]values.BattleEvent{
 				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
-			[]shiritori.Battlestreamingresult{
-				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
-				{Type: "message", Timestamp: 3, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 		},
 		{"filter old events",
@@ -39,50 +36,46 @@ func Test_poll(t *testing.T) {
 				{Type: values.EventType_Message, Timestamp: -1, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
-			[]shiritori.Battlestreamingresult{
-				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 		},
-		{"ignore other battle events",
+		{"filter other battle events",
 			[]values.BattleEvent{
 				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 				{Type: values.EventType_Message, Timestamp: 3, BattleID: "unknown", MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
-			[]shiritori.Battlestreamingresult{
-				{Type: "message", Timestamp: 2, MessagePayload: &shiritori.MessagePayload{Message: "Hello, world"}},
+			[]values.BattleEvent{
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
 			},
 		},
 	}
 
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
-			ctx := context.Background()
-			srvc := &shiritorisrvc{logger: log.New(os.Stderr, "", 0), repo: NewMemoryRepositoryFactory()}
 
-			for i := range c.entities {
-				_ = srvc.repo.BattleEvent.Insert(c.entities[i])
+			ctx, cancel := context.WithCancel(context.Background())
+			ticker := make(chan time.Time)
+
+			var actual []values.BattleEvent
+
+			sub := NewBattleEventSubscriber(ticker, 1, mainBattleId, NewMemoryRepositoryFactory().BattleEvent,
+				func(event values.BattleEvent) error {
+					actual = append(actual, event)
+					return nil
+				})
+
+			for _, e := range c.entities {
+				_ = sub.repo.Insert(e)
 			}
 
-			ticker := make(chan time.Time)
-			stopper := make(chan struct{})
-			stream := &mockSendableStream{}
-
 			go func() {
-				_ = srvc.poll(ctx, mainBattleId, stopper, ticker, stream, 1)
+				_ = sub.Subscribe(ctx)
 			}()
 			ticker <- time.Now()
-			stopper <- struct{}{}
+			cancel()
 
-			assert.Equal(t, c.expected, stream.sent)
+			assert.Equal(t, c.expected, actual)
 		})
 	}
-}
-
-type mockSendableStream struct {
-	sent []shiritori.Battlestreamingresult
-}
-
-func (m *mockSendableStream) Send(res *shiritori.Battlestreamingresult) error {
-	m.sent = append(m.sent, *res)
-	return nil
 }

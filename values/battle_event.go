@@ -9,6 +9,7 @@ type BattleEvent struct {
 }
 
 type BattleEventType string
+type BattleEventTimestamp int64
 
 type MessagePayload struct {
 	Message string
