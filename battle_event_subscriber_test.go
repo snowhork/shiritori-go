@@ -18,35 +18,35 @@ func Test_BattleEventSubscriber(t *testing.T) {
 		expected []values.BattleEvent
 	}{
 		{"pass single event",
-			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
-			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}}},
+			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}}},
+			[]values.BattleEvent{{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}}},
 		},
 		{"sort multi events",
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
-				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 		},
 		{"filter old events",
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: -1, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: -1, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 		},
 		{"filter other battle events",
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
-				{Type: values.EventType_Message, Timestamp: 3, BattleID: "unknown", MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 3, BattleID: "unknown", MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 			[]values.BattleEvent{
-				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.MessagePayload{Message: "Hello, world"}},
+				{Type: values.EventType_Message, Timestamp: 2, BattleID: mainBattleId, MessagePayload: &values.BattleEventMessagePayload{Message: "Hello, world"}},
 			},
 		},
 	}

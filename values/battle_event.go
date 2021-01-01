@@ -5,13 +5,13 @@ type BattleEvent struct {
 	Timestamp BattleEventTimestamp
 	BattleID  BattleID
 
-	MessagePayload *MessagePayload
+	MessagePayload *BattleEventMessagePayload
 }
 
 type BattleEventType string
 type BattleEventTimestamp int64
 
-type MessagePayload struct {
+type BattleEventMessagePayload struct {
 	Message string
 }
 
@@ -22,7 +22,7 @@ func NewBattleEventMessage(battleId BattleID, timestamp BattleEventTimestamp, me
 		Type:      EventType_Message,
 		BattleID:  battleId,
 		Timestamp: timestamp,
-		MessagePayload: &MessagePayload{
+		MessagePayload: &BattleEventMessagePayload{
 			Message: message,
 		},
 	}

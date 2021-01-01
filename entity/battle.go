@@ -3,13 +3,13 @@ package entity
 import "shiritori/values"
 
 type Battle struct {
-	ID      string
+	ID      values.BattleID
 	Rule    values.BattleRule
 	State   values.BattleState
 	Players []values.BattlePlayer
 }
 
-func NewBattle(id string, rule values.BattleRule, state values.BattleState, players []values.BattlePlayer) (*Battle, error) {
+func NewBattle(id values.BattleID, rule values.BattleRule, state values.BattleState, players []values.BattlePlayer) (*Battle, error) {
 	return &Battle{
 		ID:      id,
 		Rule:    rule,
@@ -18,6 +18,6 @@ func NewBattle(id string, rule values.BattleRule, state values.BattleState, play
 	}, nil
 }
 
-func (b *Battle) TransitState(event values.BattleEvent) error {
+func (b *Battle) ChangeState(event values.BattleEvent) (bool, error) {
 	return nil
 }
